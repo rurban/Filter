@@ -36,6 +36,7 @@ START_MY_CXT
 
 #define PIPE_IN(sv)	IoLINES(sv)
 #define PIPE_OUT(sv)	IoPAGE(sv)
+#define PIPE_PID(sv)	IoLINES_LEFT(sv)
 
 #define BUF_SV(sv)	IoTOP_GV(sv)
 #define BUF_START(sv)	SvPVX((SV*) BUF_SV(sv))
@@ -94,7 +95,7 @@ pipe_write(void *args)
             if ((len = FILTER_READ(idx+1, (SV*) BUF_SV(sv), 0)) > 0) {
 		BUF_NEXT(sv) = BUF_START(sv);
                 if (fdebug)
-                    warn ("*pipe_read(%d) Filt Rd returned %d %d [%*s]\n", 
+                    warn ("*pipe_write(%d) Filt Rd returned %d %d [%*s]\n", 
 			idx, len, BUF_SIZE(sv), BUF_SIZE(sv), BUF_START(sv)) ;
 	     }
              else {
@@ -109,11 +110,11 @@ pipe_write(void *args)
             if ((w = write(pipe_out, BUF_NEXT(sv), w)) > 0) {
 		BUF_NEXT(sv) += w;
 		if (fdebug)
-		    warn ("*pipe_read(%d) wrote %d bytes to pipe\n", idx, w) ;
+		    warn ("*pipe_write(%d) wrote %d bytes to pipe\n", idx, w) ;
 	    }
             else {
                 if (fdebug)
-                   warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
+                   warn ("*pipe_write(%d) closing pipe_out errno = %d %s\n", 
 			idx, errno, Strerror(errno)) ;
                 close(pipe_out) ;
 		CloseHandle((HANDLE)pipe_pid);
@@ -122,6 +123,9 @@ pipe_write(void *args)
 	    }
 	}
 	else if (rawread_eof) {
+            if (fdebug)
+               warn ("*pipe_write(%d) closing pipe_out errno = %d %s\n", 
+		idx, errno, Strerror(errno)) ;
 	    close(pipe_out);
 	    CloseHandle((HANDLE)pipe_pid);
 	    write_started = 0;
@@ -143,7 +147,7 @@ pipe_read(SV *sv, int idx, int maxlen)
     int len ;
 
     if (fdebug)
-        warn ("*PIPE_READ(sv=%d, SvCUR(sv)=%d, idx=%d, maxlen=%d\n",
+        warn ("*pipe_read(sv=%d, SvCUR(sv)=%d, idx=%d, maxlen=%d\n",
 		sv, SvCUR(sv), idx, maxlen) ;
 
     if (!maxlen)
@@ -201,13 +205,14 @@ pipe_read(SV *sv, int idx, int maxlen)
     dMY_CXT;
     int    pipe_in  = PIPE_IN(sv) ;
     int    pipe_out = PIPE_OUT(sv) ;
+    int    pipe_pid = PIPE_PID(sv) ;
 
     int r ;
     int w ;
     int len ;
 
     if (fdebug)
-        warn ("*PIPE_READ(sv=%d, SvCUR(sv)=%d, idx=%d, maxlen=%d\n",
+        warn ("*pipe_read(sv=%d, SvCUR(sv)=%d, idx=%d, maxlen=%d\n",
 		sv, SvCUR(sv), idx, maxlen) ;
 
     if (!maxlen)
@@ -244,6 +249,11 @@ pipe_read(SV *sv, int idx, int maxlen)
     		if (fdebug)
 		    warn("*pipe_read(%d) -- EOF <#########\n", idx) ;
 		close (pipe_in) ; 
+#ifdef HAVE_WAITPID
+                waitpid(pipe_pid, NULL, 0) ;
+#else
+		wait(NULL);
+#endif
                 return 0;
 	    }
         }
@@ -257,13 +267,12 @@ pipe_read(SV *sv, int idx, int maxlen)
             if ((len = FILTER_READ(idx+1, (SV*) BUF_SV(sv), 0)) > 0) {
 		BUF_NEXT(sv) = BUF_START(sv);
                 if (fdebug)
-                    warn ("*pipe_read(%d) Filt Rd returned %d %d [%*s]\n", 
+                    warn ("*pipe_write(%d) Filt Rd returned %d %d [%*s]\n", 
 			idx, len, BUF_SIZE(sv), BUF_SIZE(sv), BUF_START(sv)) ;
 	     }
              else {
                 /* eof, close write end of pipe */
                 close(pipe_out) ; 
-		wait(NULL) ; 
                 if (fdebug)
                     warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
 				idx, errno,
@@ -290,7 +299,7 @@ pipe_read(SV *sv, int idx, int maxlen)
              else {    /* pipe is full, sleep for a while, then continue */
                  if (fdebug)
                     warn ("*pipe_read(%d) - sleeping\n", idx ) ;
-		 sleep(1);
+		 sleep(0);
 	     }
         }
     }
@@ -321,7 +330,7 @@ make_nonblock(int f)
 #define READER	0
 #define	WRITER	1
 
-static void
+static Pid_t
 spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)	
 {
     dMY_CXT;
@@ -457,6 +466,8 @@ spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)
 
     *p0 = p[READER] ;
     *p1 = c[WRITER] ;
+
+    return pipepid;
 #endif
 }
 
@@ -580,6 +591,7 @@ filter_add(module, command, ...)
 	STRLEN n_a ;
 	/* SV * sv = newSVpv("", 0) ; */
 	SV * sv = newSV(1) ;
+	Pid_t pid;
  
       if (fdebug)
           warn("Filter::exec::import\n") ;
@@ -591,9 +603,10 @@ filter_add(module, command, ...)
       }
       command[i-1] = NULL ;
       filter_add(filter_exec, sv);
-      spawnCommand(PL_rsfp, command[0], command, &pipe_in, &pipe_out) ;
+      pid = spawnCommand(PL_rsfp, command[0], command, &pipe_in, &pipe_out) ;
       safefree((char*)command) ;
 
+      PIPE_PID(sv)  = pid ;
       PIPE_IN(sv)   = pipe_in ;
       PIPE_OUT(sv)  = pipe_out ;
       /* BUF_SV(sv)    = newSVpv("", 0) ; */

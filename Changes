@@ -244,3 +244,14 @@
   * Fixed bug in Filter::cpp where $Config{cppstdin} refered to an executable
     with an absolute path. Bug spotted by P. Kent.
 
+1.29 29 June 2002
+----
+
+  * Fixed problem with sleep in Exec.xs. Patch provided by Charles Randall.
+
+  * Exec.xs now used waitpid, when available, instead or wait. Patch provided
+    by Richard Clamp. 
+
+  * Also the place where the wait is called has been changed.
+    Deadlock condition spotted by Andrej Czapszys.
+

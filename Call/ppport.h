@@ -80,6 +80,10 @@
 #	define newSVpvn(data,len) ((len) ? newSVpv ((data), (len)) : newSVpv ("", 0))
 #endif
 
+#ifndef Pid_t
+#    define Pid_t	pid_t
+#endif
+
 #ifndef newRV_inc
 /* Replace: 1 */
 #	define newRV_inc(sv) newRV(sv)
