@@ -513,7 +513,7 @@ filter_exec(idx, buf_sv, maxlen)
 			idx, n, (SvCUR(buf_sv)>0) ? SvCUR(buf_sv) : n);
  
             SvCUR_set(buffer, 0);
- 
+	    BUF_NEXT(buffer) = Nullch;	/* or perl will try to free() it */
             /* filter_del(filter_sh);  */
  
             /* If error, return the code */

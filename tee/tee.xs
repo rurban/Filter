@@ -19,6 +19,7 @@ filter_tee(idx, buf_sv, maxlen)
 {
     I32 len;
     FILE * fil = (FILE*) SvIV(FILTER_DATA(idx)) ;
+    int old_len = SvCUR(buf_sv) ;
  
     if ( (len = FILTER_READ(idx+1, buf_sv, maxlen)) <=0 ) {
         /* error or eof */
@@ -28,7 +29,7 @@ filter_tee(idx, buf_sv, maxlen)
     }
 
     /* write to the tee'd file */
-    PerlIO_write(fil, SvPVX(buf_sv), len) ;
+    PerlIO_write(fil, SvPVX(buf_sv) + old_len, len - old_len) ;
 
     return SvCUR(buf_sv);
 }

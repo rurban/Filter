@@ -130,3 +130,12 @@
 
   * patch from Gurusamy Sarathy to allow the filters to build when
     threading is enabled.
+
+1.15 Monday 26th October 1998
+----
+
+  * Fixed a bug in the tee filter. 
+
+  * Applied patch from Gurusamy Sarathy which prevents Exec from coredump
+    when perl |is run with PERL_DESTRUCT_LEVEL.
+
