@@ -9,9 +9,53 @@ BEGIN
 	if $^O eq 'MSWin32' && $] < 5.006 ;
 }
 
+use strict;
+
+my @files = qw( util
+             Call/Call.pm 
+             Exec/Exec.pm 
+             decrypt/decrypt.pm decrypt/decr decrypt/encrypt
+             tee/tee.pm
+             lib/Filter/cpp.pm lib/Filter/exec.pm lib/Filter/sh.pm
+             examples/filtdef
+             examples/method/Count.pm
+             examples/method/NewSubst.pm
+             examples/method/UUdecode.pm
+             examples/method/Decompress.pm
+             examples/method/Joe2Jim.pm
+             examples/method/Subst.pm
+             examples/closure/Count.pm
+             examples/closure/NewSubst.pm
+             examples/closure/UUdecode.pm
+             examples/closure/Decompress.pm
+             examples/closure/Include.pm
+             examples/closure/Joe2Jim.pm
+             examples/closure/Subst.pm
+             examples/filtdef
+             examples/filtuu
+             t/call.t
+             t/cpp.t
+             t/decrypt.t
+             t/exec.t
+             t/order.t
+             t/sh.t
+             t/tee.t         
+           );
+             
+# See if the warnings pragma is available
+eval 'use warnings;';
+if ($@) {
+    # not there, so write a dummy warnings.pm
+    oldWarnings(@files) ;
+} else {
+    # is there,
+    newWarnings(@files) ;
+}      
+             
+
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.20',
+	VERSION   => '1.21',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz'},
 	($] >= 5.005
@@ -21,3 +65,50 @@ WriteMakefile(
 	),
 	) ;
 
+
+sub oldWarnings
+{
+    local ($^I) = ".bak" ;
+    local (@ARGV) = @_ ;
+
+    while (<>)
+    {
+	if (/^__END__/)
+	{
+	    print ;
+	    my $this = $ARGV ;
+    	    while (<>)
+	    {
+		last if $ARGV ne $this ;
+		print ;
+	    }
+	}
+
+	s/^(\s*)(no\s+warnings)/${1}local (\$^W) = 0; #$2/ ;
+	s/^(\s*)(use\s+warnings)/${1}local (\$^W) = 1; #$2/ ;
+	print ;
+    }
+}
+
+sub newWarnings
+{
+    local ($^I) = ".bak" ;
+    local (@ARGV) = @_ ;
+
+    while (<>)
+    {
+	if (/^__END__/)
+	{
+	    my $this = $ARGV ;
+	    print ;
+    	    while (<>)
+	    {
+		last if $ARGV ne $this ;
+		print ;
+	    }
+	}
+
+	s/^(\s*)local\s*\(\$\^W\)\s*=\s*\d+\s*;\s*#\s*((no|use)\s+warnings.*)/$1$2/ ;
+	print ;
+    }
+}

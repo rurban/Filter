@@ -1,6 +1,9 @@
 package Count ;
  
 use Filter::Util::Call ;
+
+use strict ;
+use warnings ;
  
 sub import
 {

@@ -3,7 +3,10 @@ package Filter::UUdecode ;
 
 use Filter::Util::Call ;
 
-$VERSION = '1.00' ;
+use strict ;
+use warnings ;
+
+my $VERSION = '1.00' ;
 
 sub import
 {

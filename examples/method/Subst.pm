@@ -2,6 +2,9 @@ package Subst ;
  
 use Filter::Util::Call ;
 use Carp ;
+
+use strict ;
+use warnings ;
  
 sub filter
 {

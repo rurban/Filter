@@ -10,14 +10,16 @@ if ($] < 5.004_55) {
     exit 0;
 }
 
+use strict;
+use warnings;
+
 require "./util" ;
 
-$Inc = $Inc ; # keep -w happy
-$Perl = $Perl ;
+use vars qw( $Inc $Perl) ;
 
-$file = "tee.test" ;
-$module = "Try";
-$tee1 = "tee1" ;
+my $file = "tee.test" ;
+my $module = "Try";
+my $tee1 = "tee1" ;
 
 
 writeFile("${module}.pm", <<EOM, <<'EOM') ;
@@ -41,7 +43,7 @@ sub import {
 1 ;
 EOM
 
-$fil1 = <<"EOM";
+my $fil1 = <<"EOM";
 use $module ;
 
 print "ABC ABC\n" ;
@@ -52,7 +54,7 @@ writeFile($file, <<"EOM", $fil1) ;
 use Filter::tee '>$tee1' ;
 EOM
 
-$a = `$Perl $Inc $file 2>&1` ;
+my $a = `$Perl $Inc $file 2>&1` ;
 
 print "1..3\n" ;
 

@@ -2,8 +2,10 @@ package Filter::decrypt ;
 
 require 5.002 ;
 require DynaLoader;
+use strict;
+use warnings;
+use vars qw(@ISA $VERSION);
 @ISA = qw(DynaLoader);
-use vars qw($VERSION);
 $VERSION = "1.04" ;
 
 bootstrap Filter::decrypt ;

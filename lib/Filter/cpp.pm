@@ -4,6 +4,7 @@ use Config ;
 use Carp ;
 use Filter::Util::Exec ;
 use strict;
+use warnings;
 use vars qw($VERSION);
 
 $VERSION = '1.01' ;

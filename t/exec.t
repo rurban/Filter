@@ -1,7 +1,10 @@
+
+use strict;
+use warnings;
+
 require "util" ;
 
-$Inc = $Inc ; # keep -w happy
-$Perl = $Perl ;
+use vars qw( $Inc $Perl $script ) ;
 
 if ($^O =~ /win32/i) {
 $script = <<'EOF' ;
@@ -35,10 +38,10 @@ EOM
 PRINT "A (AGAIN) = $A\N" ;
 EOF
 
-$filename = 'sh.test' ;
+my $filename = 'sh.test' ;
 writeFile($filename, $script) ;
 
-$expected_output = <<'EOM' ;
+my $expected_output = <<'EOM' ;
 a = 2
 Hello joe
 mary Had 

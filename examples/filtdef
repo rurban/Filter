@@ -1,5 +1,10 @@
 #!/usr/local/bin/perl
 
+use strict ;
+use warnings ;
+
+my ($file, $output, $status) ;
+
 use Compress::Zlib ;
 
 die "Usage: mkdef file\n"
@@ -8,7 +13,7 @@ die "Usage: mkdef file\n"
 foreach $file (@ARGV) 
 {
     open (F, "<$file") or die "Cannot open $file: $!\n" ;
-    $x = deflateInit()
+    my $x = deflateInit()
        or die "Cannot create a deflation stream\n" ;
 
     print "use Filter::Decompress;\n" ;

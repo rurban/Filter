@@ -1,10 +1,12 @@
 
+use strict;
+use warnings;
+
+use vars qw( $Inc $Perl ) ;
+
 require "./util" ;
 
-$Inc = $Inc ; # keep -w happy
-$Perl = $Perl ;
-
-$script = <<'EOF' ;
+my $script = <<'EOF' ;
 use Filter::cpp ;
 #define FRED 1
 #define JOE
@@ -23,11 +25,11 @@ require "./fred" ;
 #endif
 EOF
 
-$cpp_script = 'cpp.script' ;
+my $cpp_script = 'cpp.script' ;
 writeFile($cpp_script, $script) ;
 writeFile('fred', 'print "This is FRED, not JOE\n" ; 1 ;') ;
 
-$expected_output = <<'EOM' ;
+my $expected_output = <<'EOM' ;
 a = 3
 This is FRED, not JOE
 Hello Joe

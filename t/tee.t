@@ -1,22 +1,25 @@
+
+use strict;
+use warnings;
+
 require "./util" ;
 
-$Inc = $Inc ; # keep -w happy
-$Perl = $Perl ;
+use vars qw( $Inc $Perl $tee1) ;
 
-$file = "tee.test" ;
+my $file = "tee.test" ;
 $tee1 = "tee1" ;
-$tee2 = "tee2" ;
+my $tee2 = "tee2" ;
 
 
-$out1 = <<"EOF" ;
+my $out1 = <<"EOF" ;
 use Filter::tee '>$tee1' ; 
 EOF
 
-$out2 = <<"EOF" ;
+my $out2 = <<"EOF" ;
 use Filter::tee '>>$tee2' ; 
 EOF
 
-$out3 = <<'EOF' ;
+my $out3 = <<'EOF' ;
 
 $a = 1 ;
 print "a = $a\n" ;
@@ -34,7 +37,7 @@ exit 0 ;
 
 EOF
 
-$out4 = <<'EOM' ;
+my $out4 = <<'EOM' ;
 Here is the news
 EOM
 
@@ -42,7 +45,7 @@ writeFile($file, $out1, $out2, $out3) ;
 writeFile('joe', 'print "joe\n"') ;
 writeFile($tee2, $out4) ;
 
-$a = `$Perl $Inc $file 2>&1` ;
+my $a = `$Perl $Inc $file 2>&1` ;
 
 print "1..5\n" ;
 

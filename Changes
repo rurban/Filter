@@ -175,4 +175,12 @@
   * Modified decrypt.t to fix a case where HP-UX didn't pass test 4.
 
 
+1.21 Monday 19th February 20001
+----
+
+  * Added logic in Makefile.PL to toggle between using $^W and
+    the warnings pragma in the module.
+ 
+  * The module, the examples & the test harness are now all strict
+    & warnings clean.  
 

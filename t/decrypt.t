@@ -1,12 +1,14 @@
 
+use strict;
+use warnings;
+
 require "util" ;
 use Cwd ;
-$here = getcwd ;
+my $here = getcwd ;
 
-$Inc = $Inc ; # keep -w happy
-$Perl = $Perl ;
+use vars qw( $Inc $Perl ) ;
 
-$script = <<'EOM' ;
+my $script = <<'EOM' ;
 
 print "testing, testing, 1, 2, 3\n" ;
 require "./plain" ;
@@ -35,7 +37,7 @@ format STDOUT =
 write ;
 EOM
 
-$expected_output = <<EOM ;
+my $expected_output = <<EOM ;
 testing, testing, 1, 2, 3
 This is plain text
 some
@@ -48,13 +50,13 @@ I'm a format top
 I'm not
 EOM
 
-$filename = "decrypt.tst" ;
+my $filename = "decrypt.tst" ;
 
 writeFile($filename, $script) ;
 `$Perl decrypt/encrypt $filename` ;
 writeFile('plain', 'print "This is plain text\n" ; 1 ;') ;
 
-$a = `$Perl $Inc $filename 2>&1` ;
+my $a = `$Perl $Inc $filename 2>&1` ;
 
 print "1..6\n" ;
 ok(1, ($? >>8) == 0) ;
@@ -69,8 +71,8 @@ ok(3, $a =~ /debugger disabled/) ;
 
 # case 2 - Perl Compiler in use
 $a = `$Perl $Inc -MCarp -MO=Deparse $filename 2>&1` ;
-print "[[$a]]\n" ;
-$skip = "" ;
+#print "[[$a]]\n" ;
+my $skip = "" ;
 $skip = "# skipped -- compiler not available" 
     if $a =~ /^Can't locate O\.pm in/ ||
        $a =~ /^Can't load '/ ||

@@ -1,8 +1,11 @@
 
 require 5.002 ;
 
+use strict;
+use warnings;
+
 use vars qw($XOR $BLOCKSIZE $HEADERSIZE $CRYPT_MAGIC_1 $CRYPT_MAGIC_2
-	    $size $mode $line
+	    $size $mode $line $Fingerprint $file $block
 	   ) ;
 
 $XOR	 	= 'Perl' ;
