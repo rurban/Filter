@@ -165,3 +165,14 @@
   * Added a test in decrypt.xs to check if the Compiler backend is in use.
     Thanks to Andrew Johnson for bringing this to my attention.
 
+1.20 Sunday 7th January 2001
+----
+
+  * Added a SYNOPSIS to Call.pm & Exec.pm
+
+  * Integrated perl core patches 7849, 7913 & 7931.
+
+  * Modified decrypt.t to fix a case where HP-UX didn't pass test 4.
+
+
+

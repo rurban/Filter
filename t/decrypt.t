@@ -75,7 +75,7 @@ $skip = "# skipped -- compiler not available"
     if $a =~ /^Can't locate O\.pm in/ ||
        $a =~ /^Can't load '/ ||
        $a =~ /^"my" variable \$len masks/ ;
-ok(4, ($skip || $a =~ /^Aborting, Compiler detected/), $skip) ;
+ok(4, ($skip || $a =~ /Aborting, Compiler detected/), $skip) ;
 
 # case 3 - unknown encryption
 writeFile($filename, <<EOM) ;

@@ -15,6 +15,10 @@ __END__
 
 Filter::Util::Exec - exec source filter
 
+=head1 SYNOPSIS
+ 
+    use Filter::Util::Exec;
+
 =head1 DESCRIPTION
 
 This module is provides the interface to allow the creation of I<Source
