@@ -50,3 +50,25 @@
       method is now used.
 
     * Addition of Filter::call - first go at implementation of perl filters.
+
+
+1.07 Wednesday 29th November 1995
+----
+
+  * exec now uses the non-blocking IO constants from Configure. Thanks
+    to Raphael for writing the dist module and to Andy for including it
+    in Configure.
+ 
+  * The decrypt filter has been enhanced to detect when it is
+    executing as a dynamically linked module and if DEBUGGING is
+    enabled. Thanks to Tim for providing the dynamic module test.
+ 
+  * Tim provided a pile of bug fixes for decrypt.xs
+ 
+  * Filter::call has been renamed Filter::Util::Call and the logic for
+    installing it has been changed. 
+ 
+  * The workings of the filter method in Filter::Util::Call has been
+    changed.
+
+

@@ -1,6 +1,7 @@
 use ExtUtils::MakeMaker;
 
 WriteMakefile(
-	NAME      => 'Filter::call',
+	NAME      => 'Filter::Util::Exec',
 	VERSION   => '1.00',
 );
+

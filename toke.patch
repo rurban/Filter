@@ -1,0 +1,56 @@
+*** toke.c.orig	Thu Nov 16 03:08:23 1995
+--- toke.c	Thu Nov 30 11:33:18 1995
+***************
+*** 1069,1081 ****
+  
+  	    /* ensure buf_sv is large enough */
+  	    SvGROW(buf_sv, old_len + maxlen) ;
+! 	    if ((len = fread(SvPVX(buf_sv) + old_len, 1, maxlen, rsfp)) <= 0)
+! 		return len ;
+  	    SvCUR_set(buf_sv, old_len + len) ;
+  	} else {
+  	    /* Want a line */
+!             if (sv_gets(buf_sv, rsfp, SvCUR(buf_sv)) == NULL)
+! 	        return -1;		/* end of file */
+  	}
+  	return SvCUR(buf_sv);
+      }
+--- 1069,1089 ----
+  
+  	    /* ensure buf_sv is large enough */
+  	    SvGROW(buf_sv, old_len + maxlen) ;
+! 	    if ((len = fread(SvPVX(buf_sv) + old_len, 1, maxlen, rsfp)) <= 0){
+! 		if (ferror(rsfp))
+! 	            return -1;		/* error */
+! 	        else
+! 		    return 0 ;		/* end of file */
+! 	    }
+  	    SvCUR_set(buf_sv, old_len + len) ;
+  	} else {
+  	    /* Want a line */
+!             if (sv_gets(buf_sv, rsfp, SvCUR(buf_sv)) == NULL) {
+! 		if (ferror(rsfp))
+! 	            return -1;		/* error */
+! 	        else
+! 		    return 0 ;		/* end of file */
+! 	    }
+  	}
+  	return SvCUR(buf_sv);
+      }
+***************
+*** 1092,1098 ****
+  		idx, funcp, SvPV(datasv,na));
+      /* Call function. The function is expected to 	*/
+      /* call "FILTER_READ(idx+1, buf_sv)" first.		*/
+!     /* Return: <0:error/eof, >=0:not eof (see yylex())	*/
+      return (*funcp)(idx, buf_sv, maxlen);
+  }
+  
+--- 1100,1106 ----
+  		idx, funcp, SvPV(datasv,na));
+      /* Call function. The function is expected to 	*/
+      /* call "FILTER_READ(idx+1, buf_sv)" first.		*/
+!     /* Return: <0:error, =0:eof, >0:not eof 		*/
+      return (*funcp)(idx, buf_sv, maxlen);
+  }
+  

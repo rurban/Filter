@@ -9,7 +9,7 @@ __END__
 
 =head1 NAME
 
-Filter::decrypt - decrypt source filter
+Filter::decrypt - template for a decrypt source filter
 
 =head1 SYNOPSIS
 
@@ -19,16 +19,20 @@ Filter::decrypt - decrypt source filter
 
 This is a sample decrypting source filter.
 
-It is I<not> intended to be used for real as supplied. Consider it to
-be a sampler from which you can develop your own decryption filter.
+Although this is a fully functional source filter and it does implement
+a I<very> simple decrypt algorithm, it is I<not> intended to be used as
+it is supplied. Consider it to be a template which you can combine with
+a proper decryption algorithm to develop your own decryption filter.
 
-It is worth noting that a decryption filter can I<never> provide
+=head1 WARNING
+
+It is important to note that a decryption filter can I<never> provide
 complete security against attack. At some point the parser within Perl
-needs to be able to scan the original decrypted source. Fragments of
-the source will exist for a while in memory.
+needs to be able to scan the original decrypted source. That means that
+at some stage fragments of the source will exist in a memory buffer.
 
 The best you can hope to achieve by decrypting your Perl source using a
-filter is to make it impractical to crack.
+source filter is to make it impractical to crack.
 
 Given that proviso, there are a number of things you can do to make
 life more difficult for the prospective cracker.
@@ -48,7 +52,9 @@ linking it at run time with a modified Perl binary.
 =item 3.
 
 Do not build Perl with C<-DDEBUGGING>. If you do then your source can
-be retrieved with the C<-Dp> command line option.
+be retrieved with the C<-Dp> command line option. 
+
+The sample filter contains logic to detect the C<DEBUGGING> option.
 
 =item 4.
 
@@ -73,10 +79,10 @@ further details.
 
 =head1 AUTHOR
 
-Paul Marquess <pmarquess@bfsec.bt.co.uk>
+Paul Marquess 
 
 =head1 DATE
 
-20th June 1995.
+20th November 1995
 
 =cut

@@ -1,9 +1,9 @@
 /* 
  * Filename : decrypt.xs
  * 
- * Author   : Paul Marquess <pmarquess@bfsec.bt.co.uk>
- * Date     : 20th June 1995
- * Version  : 1.0
+ * Author   : Paul Marquess 
+ * Date     : 20th November 1995
+ * Version  : 1.01
  *
  */
 
@@ -11,7 +11,9 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifdef FDEBUG
 static int fdebug = 0;
+#endif
 
 /* constants specific to the encryption format */
 #define CRYPT_MAGIC_1	0xff
@@ -19,6 +21,10 @@ static int fdebug = 0;
 
 #define HEADERSIZE	2
 #define BLOCKSIZE	4
+
+
+#define SET_LEN(sv,len) \
+        do { SvPVX(sv)[len] = '\0'; SvCUR_set(sv, len); } while (0)
 
 
 static unsigned XOR [BLOCKSIZE] = {'P', 'e', 'r', 'l' } ;
@@ -37,6 +43,7 @@ static unsigned XOR [BLOCKSIZE] = {'P', 'e', 'r', 'l' } ;
 #define DECRYPT_BUFFER(s)	SvPVX(DECRYPT_SV(s))
 #define CLEAR_DECRYPT_SV(s)	SvCUR_set(DECRYPT_SV(s), 0)
 #define DECRYPT_BUFFER_LEN(s)	SvCUR(DECRYPT_SV(s))
+#define DECRYPT_OFFSET(s) 	IoPAGE_LEN(s)
 #define SET_DECRYPT_BUFFER_LEN(s,n)	SvCUR_set(DECRYPT_SV(s), n)
 
 static unsigned
@@ -63,35 +70,31 @@ SV * out_sv ;
             out_buffer[i] = (unsigned char)( XOR[i] ^ in_buffer[i] ) ;
 
 	/* input has been consumed, so set length to 0 */
-	SvCUR_set(in_sv, 0) ;
+	SET_LEN(in_sv, 0) ;
 
 	/* set decrypt buffer length */
-	SvCUR_set(out_sv, index) ;
+	SET_LEN(out_sv, index) ;
 
 	/* return the size of the decrypt buffer */
  	return (index) ;
 }
 
-static unsigned
+static int
 ReadBlock(idx, sv, size)
 int idx ;
 SV * sv ;
 unsigned size ;
-{
-    /* read *exactly* size bytes from the next filter */
-
-    int n ;
+{   /* read *exactly* size bytes from the next filter */
     int i = size;
-
     while (1) {
-        n = FILTER_READ(idx, sv, i) ;
-	if (n <= 0)
-	    return n ;
-
-	if (n == i)
-	    return size ;
-
-	i -= n ;
+        int n = FILTER_READ(idx, sv, i) ;
+        if (n <= 0 && i==size)  /* eof/error when nothing read so far */
+            return n ;
+        if (n <= 0)             /* eof/error when something already read */
+            return size - i;
+        if (n == i)
+            return size ;
+        i -= n ;
     }
 }
 
@@ -151,32 +154,39 @@ filter_decrypt(idx, buf_sv, maxlen)
         preDecrypt(idx) ;
 
 	FIRST_TIME(my_sv) = FALSE ;
-        SvCUR_set(DECRYPT_SV(my_sv), 0) ;
-        SvCUR_set(ENCRYPT_SV(my_sv), 0) ;
+        SET_LEN(DECRYPT_SV(my_sv), 0) ;
+        SET_LEN(ENCRYPT_SV(my_sv), 0) ;
+        DECRYPT_OFFSET(my_sv)    = 0 ;
     }
 
+#ifdef FDEBUG
     if (fdebug)
 	warn("**** In filter_decrypt - maxlen = %d, len buf = %d idx = %d\n", 
 		maxlen, SvCUR(buf_sv), idx ) ;
+#endif
 
     while (1) {
 
 	/* anything left from last time */
 	if (n = SvCUR(DECRYPT_SV(my_sv))) {
 
-	    out_ptr = SvPVX(DECRYPT_SV(my_sv)) ;
+	    out_ptr = SvPVX(DECRYPT_SV(my_sv)) + DECRYPT_OFFSET(my_sv) ;
 
 	    if (maxlen) { 
 		/* want a block */ 
+#ifdef FDEBUG
 		if (fdebug)
 		    warn("BLOCK(%d): size = %d, maxlen = %d\n", 
 			idx, n, maxlen) ;
+#endif
 
 	        sv_catpvn(buf_sv, out_ptr, maxlen > n ? n : maxlen );
-		if(n <= maxlen)
-	            SvCUR_set(DECRYPT_SV(my_sv), 0) ;
+		if(n <= maxlen) {
+        	    DECRYPT_OFFSET(my_sv) = 0 ;
+	            SET_LEN(DECRYPT_SV(my_sv), 0) ;
+		}
 		else {
-	            memmove(out_ptr, out_ptr+maxlen, n - maxlen);
+        	    DECRYPT_OFFSET(my_sv) += maxlen ;
 	            SvCUR_set(DECRYPT_SV(my_sv), n - maxlen) ;
 		}
 	        return SvCUR(buf_sv);
@@ -187,55 +197,71 @@ filter_decrypt(idx, buf_sv, maxlen)
 
 	            sv_catpvn(buf_sv, out_ptr, p - out_ptr + 1);
 
-	    	    /* move remaining partial line down to start of string */
 	            n = n - (p - out_ptr + 1);
-	            memmove(out_ptr, p + 1, n); 
+		    DECRYPT_OFFSET(my_sv) += (p - out_ptr + 1) ;
 	            SvCUR_set(DECRYPT_SV(my_sv), n) ;
+#ifdef FDEBUG
 	            if (fdebug)
-		        warn("recycle %d - leaving %d, returning %d [%s]", 
+		        warn("recycle %d - leaving %d, returning %d [%.999s]", 
 				idx, n, SvCUR(buf_sv), SvPVX(buf_sv)) ;
+#endif
 
 	            return SvCUR(buf_sv);
 	        }
 	        else /* no EOL, so append the complete buffer */
-	            sv_catsv(buf_sv, DECRYPT_SV(my_sv)) ;
+	            sv_catpvn(buf_sv, out_ptr, n) ;
 	    }
 	    
 	}
 
 
-	SvCUR_set(DECRYPT_SV(my_sv), 0) ;
+	SET_LEN(DECRYPT_SV(my_sv), 0) ;
+        DECRYPT_OFFSET(my_sv) = 0 ;
 
 	/* read from the file into the encrypt buffer */
  	if ( (n = ReadBlock(idx+1, ENCRYPT_SV(my_sv), BLOCKSIZE)) <= 0)
 	{
 	    /* Either EOF or an error */
 
+#ifdef FDEBUG
 	    if (fdebug)
 	        warn ("filter_read %d returned %d , returning %d\n", idx, n,
 	            (SvCUR(buf_sv)>0) ? SvCUR(buf_sv) : n);
+#endif
 
-	    SvCUR_set(DECRYPT_SV(my_sv), 0);
+	    /* don't leave last source buffer lying around */
+	    SvREFCNT_dec(DECRYPT_SV(my_sv));
+	    DECRYPT_SV(my_sv) = &sv_undef;
+
 
 	    /* If the decrypt code needs to tidy up on EOF/error, 
 		now is the time  - here is a hook */
 	    postDecrypt() ; 
 
-	    filter_del(filter_decrypt);  
+	    /* filter_del(filter_decrypt);   */
+
+ 
+            /* If error, return the code */
+            if (n < 0)
+                return n ;
 
 	    /* return what we have so far else signal eof */
 	    return (SvCUR(buf_sv)>0) ? SvCUR(buf_sv) : n;
 	}
 
+#ifdef FDEBUG
 	if (fdebug)
-	    warn("  filter_decrypt(%d): sub-filter returned %d: '%s'",
+	    warn("  filter_decrypt(%d): sub-filter returned %d: '%.999s'",
 		idx, n, SvPV(my_sv,na));
+#endif
 
 	/* Now decrypt a block */
 	n = Decrypt(ENCRYPT_SV(my_sv), DECRYPT_SV(my_sv)) ;
 
+#ifdef FDEBUG
 	if (fdebug)
 	    warn("Decrypt (%d) returned %d\n", idx, n) ;
+#endif
 
     }
 }
@@ -243,23 +269,43 @@ filter_decrypt(idx, buf_sv, maxlen)
 
 MODULE = Filter::decrypt	PACKAGE = Filter::decrypt
 
+BOOT:
+    /* Don't run if this module is dynamically linked */
+#ifndef BYPASS
+    if (!isALPHA(SvPV(GvSV(CvFILEGV(cv)), na)[0]))
+	croak("module is dynamically linked. Recompile as a static module") ;
+#endif
+#ifdef DEBUGGING
+	/* Don't run if compiled with DEBUGGING */
+	croak("recompile without -DDEBUGGING") ;
+#endif
+
+
 void
 import(module)
     SV *	module = NO_INIT
     PPCODE:
     {
 
-        SV * sv = newSVpv("", BLOCKSIZE) ;
+        SV * sv = newSV(BLOCKSIZE) ;
 
 	/* make sure the Perl debugger isn't enabled */
 	if( perldb )
 	    croak("debugger disabled") ;
 
+	/* Double check that DEBUGGING hasn't been enabled */
+	if (debug)
+	    croak("debugging flags detected") ;
+
         filter_add(filter_decrypt, sv) ;
 	FIRST_TIME(sv) = TRUE ;
-	ENCRYPT_SV(sv) = newSVpv("", BLOCKSIZE) ;
-        SvCUR_set(DECRYPT_SV(sv), 0) ;
-        SvCUR_set(ENCRYPT_SV(sv), 0) ;
+
+        ENCRYPT_SV(sv) = newSV(BLOCKSIZE) ;
+        (void)SvPOK_only(DECRYPT_SV(sv));
+        (void)SvPOK_only(ENCRYPT_SV(sv));
+        SET_LEN(DECRYPT_SV(sv), 0) ;
+        SET_LEN(ENCRYPT_SV(sv), 0) ;
+
 
         /* remember how many filters are enabled */
         FILTER_COUNT(sv) = AvFILL(rsfp_filters) ;

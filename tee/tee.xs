@@ -1,7 +1,7 @@
 /* 
  * Filename : tee.xs
  * 
- * Author   : Paul Marquess <pmarquess@bfsec.bt.co.uk>
+ * Author   : Paul Marquess 
  * Date     : 20th June 1995
  * Version  : 1.0
  *

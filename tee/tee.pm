@@ -2,6 +2,7 @@ package Filter::tee ;
 
 require DynaLoader;
 @ISA = qw(DynaLoader);
+$VERSION = 1.02 ;
 
 bootstrap Filter::tee ;
 
@@ -35,7 +36,7 @@ filters.
 
 =head1 AUTHOR
 
-Paul Marquess <pmarquess@bfsec.bt.co.uk>
+Paul Marquess 
 
 =head1 DATE
 

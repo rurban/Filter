@@ -21,51 +21,44 @@ print "1..20\n" ;
 # Test error cases
 ##################
 
-# no module name specified
-##########################
-
-$a = `$Perl $Inc -e "use Filter::call ; "  2>&1` ;
-
-ok(1, ($? >>8) != 0) ;
-ok(2, $a =~ /^Usage: use Filter::call qw\(module \[args...]/) ;
-
-# module name doesn't exist
-###########################
-
-$a = `$Perl $Inc -e "use Filter::call 'bad__1' ;"  2>&1` ;
-ok(3, ($? >>8) != 0) ;
-ok(4, $a =~ /^Can't locate bad__1.pm in \@INC/ ) ;
-
-
-# no new function in module
-###########################
-
-writeFile("${module}.pm", <<EOM) ;
-package ${module} ;
-
-1 ;
-EOM
-
-$a = `$Perl $Inc -e "use Filter::call '${module}' ;"  2>&1` ;
-ok(5, ($? >>8) != 0) ;
-ok(6, $a =~ /^Can't locate object method "new" via package "MyTest"/) ;
-
-
 # no filter function in module 
 ###############################
 
 writeFile("${module}.pm", <<EOM) ;
 package ${module} ;
+
+use Filter::Util::Call ;
  
-sub new { bless [] }
+sub import { filter_add(bless []) }
 
 1 ;
 EOM
  
-$a = `$Perl $Inc -e "use Filter::call '${module}' ;"  2>&1` ;
-ok(7, ($? >>8) != 0) ;
-ok(8, $a =~ /^Can't locate object method "filter" via package "MyTest"/) ;
+$a = `$Perl -I. $Inc -e "use ${module} ;"  2>&1` ;
+ok(1, ($? >>8) != 0) ;
+ok(2, $a =~ /^Can't locate object method "filter" via package "MyTest"/) ;
  
+# no reference parameter in filter_add
+######################################
+
+writeFile("${module}.pm", <<EOM) ;
+package ${module} ;
+ 
+use Filter::Util::Call ;
+ 
+sub import { filter_add() }
+ 
+1 ;
+EOM
+ 
+$a = `$Perl -I. $Inc -e "use ${module} ;"  2>&1` ;
+ok(3, ($? >>8) != 0) ;
+#ok(4, $a =~ /^usage: filter_add\(ref\) at ${module}.pm/) ;
+ok(4, $a =~ /^Not enough arguments for Filter::Util::Call::filter_add/) ;
+ 
+
+
+
 # non-error cases
 #################
 
@@ -77,15 +70,16 @@ writeFile("${module}.pm", <<EOM, <<'EOM') ;
 package ${module} ;
  
 EOM
-sub new { bless [] }
+use Filter::Util::Call ;
+sub import { filter_add(bless []) }
 
 sub filter 
 { 
-    my ($self, $buffer) = @_ ;
+    my ($self) = @_ ;
     my ($status) ;
 
-    if ($status = filter_read($buffer)) {
-	$$buffer =~ s/ABC/DEF/g
+    if (($status = filter_read()) > 0) {
+	s/ABC/DEF/g
     }
     $status ;
 }
@@ -95,7 +89,7 @@ EOM
  
 writeFile($filename, <<EOM, <<'EOM') ;
 
-use Filter::call '$module' ;
+use $module ;
 EOM
 
 use Cwd ;
@@ -109,9 +103,9 @@ EOF
 
 EOM
 
-$a = `$Perl $Inc $filename  2>&1` ;
-ok(9, ($? >>8) == 0) ;
-ok(10, $a eq <<EOM) ;
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(5, ($? >>8) == 0) ;
+ok(6, $a eq <<EOM) ;
 I am $here
 some letters DEF
 Alphabetti Spagetti (DEFDEF)
@@ -124,17 +118,18 @@ EOM
 
 writeFile("${module2}.pm", <<EOM, <<'EOM') ;
 package ${module2} ;
+use Filter::Util::Call ;
  
 EOM
-sub new { bless [] }
+sub import { filter_add(bless []) }
  
 sub filter
 {
-    my ($self, $buffer) = @_ ;
+    my ($self) = @_ ;
     my ($status) ;
  
-    if ($status = filter_read($buffer)) {
-        $$buffer =~ s/XYZ/PQR/g
+    if (($status = filter_read()) > 0) {
+        s/XYZ/PQR/g
     }
     $status ;
 }
@@ -144,17 +139,18 @@ EOM
  
 writeFile("${module3}.pm", <<EOM, <<'EOM') ;
 package ${module3} ;
+use Filter::Util::Call ;
  
 EOM
-sub new { bless [] }
+sub import { filter_add(bless []) }
  
 sub filter
 {
-    my ($self, $buffer) = @_ ;
+    my ($self) = @_ ;
     my ($status) ;
  
-    if ($status = filter_read($buffer)) {
-        $$buffer =~ s/Fred/Joe/g
+    if (($status = filter_read()) > 0) {
+        s/Fred/Joe/g
     }
     $status ;
 }
@@ -165,7 +161,7 @@ EOM
 writeFile("${module4}.pm", <<EOM) ;
 package ${module4} ;
  
-use Filter::call '$module5' ;
+use $module5 ;
 
 print "I'm feeling used!\n" ;
 print "Fred Joe ABC DEF PQR XYZ\n" ;
@@ -175,17 +171,18 @@ EOM
 
 writeFile("${module5}.pm", <<EOM, <<'EOM') ;
 package ${module5} ;
+use Filter::Util::Call ;
  
 EOM
-sub new { bless [] }
+sub import { filter_add(bless []) }
  
 sub filter
 {
-    my ($self, $buffer) = @_ ;
+    my ($self) = @_ ;
     my ($status) ;
  
-    if ($status = filter_read($buffer)) {
-        $$buffer =~ s/Today/Tomorrow/g
+    if (($status = filter_read()) > 0) {
+        s/Today/Tomorrow/g
     }
     $status ;
 }
@@ -196,8 +193,8 @@ EOM
 writeFile($filename, <<EOM, <<'EOM') ;
  
 # two filters for this file
-use Filter::call '$module' ;
-use Filter::call '$module2' ;
+use $module ;
+use $module2 ;
 require "$nested" ;
 use $module4 ;
 EOM
@@ -211,7 +208,7 @@ EOF
 EOM
  
 writeFile($nested, <<EOM, <<'EOM') ;
-use Filter::call '$module3' ;
+use $module3 ;
 EOM
  
 print "This is another file XYZ\n" ;
@@ -221,9 +218,9 @@ EOF
  
 EOM
 
-$a = `$Perl $Inc $filename  2>&1` ;
-ok(11, ($? >>8) == 0) ;
-ok(12, $a eq <<EOM) ;
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(7, ($? >>8) == 0) ;
+ok(8, $a eq <<EOM) ;
 I'm feeling used!
 Fred Joe ABC DEF PQR XYZ
 See you Tomorrow
@@ -241,26 +238,27 @@ EOM
 
 writeFile("${module2}.pm", <<EOM, <<'EOM') ;
 package ${module2} ;
+use Filter::Util::Call ;
  
 EOM
-sub new 
+sub import 
 { 
     my ($type) = shift ;
     my (@strings) = @_ ;
 
   
-    bless [@strings] 
+    filter_add (bless [@strings]) 
 }
  
 sub filter
 {
-    my ($self, $buffer) = @_ ;
+    my ($self) = @_ ;
     my ($status) ;
     my ($pattern) ;
  
-    if ($status = filter_read($buffer)) {
+    if (($status = filter_read()) > 0) {
 	foreach $pattern (@$self)
-          { $$buffer =~ s/$pattern/PQR/g }
+          { s/$pattern/PQR/g }
     }
 
     $status ;
@@ -272,8 +270,8 @@ EOM
  
 writeFile($filename, <<EOM, <<'EOM') ;
  
-use Filter::call qw( $module2 XYZ KLM) ;
-use Filter::call qw( $module2 ABC NMO) ;
+use $module2 qw( XYZ KLM) ;
+use $module2 qw( ABC NMO) ;
 EOM
  
 print "some letters ABCXYZ KLM NMO\n" ;
@@ -284,9 +282,9 @@ EOF
  
 EOM
  
-$a = `$Perl $Inc $filename  2>&1` ;
-ok(13, ($? >>8) == 0) ;
-ok(14, $a eq <<EOM) ;
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(9, ($? >>8) == 0) ;
+ok(10, $a eq <<EOM) ;
 some letters PQRPQR PQR PQR
 Alphabetti Spagetti (PQRDEFPQRPQRPQR)
 EOM
@@ -297,27 +295,28 @@ EOM
 
 writeFile("${module2}.pm", <<EOM, <<'EOM') ;
 package ${module2} ;
+use Filter::Util::Call ;
  
 EOM
-sub new 
+sub import
 { 
     my ($type) = shift ;
     my (@strings) = @_ ;
 
   
-    bless [] 
+    filter_add(bless []) 
 }
  
 sub filter
 {
-    my ($self, $buffer) = @_ ;
+    my ($self) = @_ ;
     my ($status) ;
  
     # read first line
-    if ($status = filter_read($buffer)) {
-	chop $$buffer ;
+    if (($status = filter_read()) > 0) {
+	chop ;
 	# and now the second line (it will append)
-        $status = filter_read($buffer) ;
+        $status = filter_read() ;
     }
 
     $status ;
@@ -329,7 +328,7 @@ EOM
  
 writeFile($filename, <<EOM, <<'EOM') ;
  
-use Filter::call qw( $module2 ) ;
+use $module2  ;
 EOM
 print "don't cut me 
 in half\n" ;
@@ -342,9 +341,9 @@ F
  
 EOM
  
-$a = `$Perl $Inc $filename  2>&1` ;
-ok(15, ($? >>8) == 0) ;
-ok(16, $a eq <<EOM) ;
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(11, ($? >>8) == 0) ;
+ok(12, $a eq <<EOM) ;
 don't cut me in half
 appended
 EOM
@@ -354,24 +353,25 @@ EOM
 
 writeFile("${block}.pm", <<EOM, <<'EOM') ;
 package ${block} ;
+use Filter::Util::Call ;
  
 EOM
-sub new 
+sub import
 { 
     my ($type) = shift ;
     my (@strings) = @_ ;
 
   
-    bless [@strings] 
+    filter_add (bless [@strings] )
 }
  
 sub filter
 {
-    my ($self, $buffer) = @_ ;
+    my ($self) = @_ ;
     my ($status) ;
     my ($pattern) ;
  
-    filter_read($buffer, 20)  ;
+    filter_read(20)  ;
 }
  
 1 ;
@@ -385,12 +385,12 @@ EOM
 
 
 writeFile($filename, <<EOM, $string ) ;
-use Filter::call '$block' ;
+use $block ;
 EOM
  
-$a = `$Perl $Inc $filename  2>&1` ;
-ok(17, ($? >>8) == 0) ;
-ok(18, $a eq <<EOM) ;
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(13, ($? >>8) == 0) ;
+ok(14, $a eq <<EOM) ;
 hello mum
 Who wants it?
 me me me 
@@ -401,27 +401,28 @@ EOM
 
 writeFile("${block}.pm", <<EOM, <<'EOM') ;
 package ${block} ;
+use Filter::Util::Call ;
  
 EOM
 use Cwd ;
 
-sub new 
+sub import
 { 
     my ($type) = shift ;
     my (@strings) = @_ ;
 
   
-    bless [@strings] 
+    filter_add(bless [@strings] )
 }
  
 sub filter
 {
-    my ($self, $buffer) = @_ ;
+    my ($self) = @_ ;
     my ($status) ;
     my ($here) = getcwd ;
  
-    if ($status = filter_read($buffer)) {
-        $$buffer =~ s/DIR/$here/g
+    if (($status = filter_read()) > 0) {
+        s/DIR/$here/g
     }
     $status ;
 }
@@ -430,16 +431,121 @@ sub filter
 EOM
 
 writeFile($filename, <<EOM, <<'EOM') ;
-use Filter::call '$block' ;
+use $block ;
 EOM
 print "We are in DIR\n" ;
 EOM
  
-$a = `$Perl $Inc $filename  2>&1` ;
-ok(19, ($? >>8) == 0) ;
-ok(20, $a eq <<EOM) ;
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(15, ($? >>8) == 0) ;
+ok(16, $a eq <<EOM) ;
 We are in $here
 EOM
+
+
+# filter_del
+#############
+ 
+writeFile("${block}.pm", <<EOM, <<'EOM') ;
+package ${block} ;
+use Filter::Util::Call ;
+ 
+EOM
+ 
+sub import
+{
+    my ($type) = shift ;
+    my ($count) = @_ ;
+ 
+ 
+    filter_add(bless \$count )
+}
+ 
+sub filter
+{
+    my ($self) = @_ ;
+    my ($status) ;
+ 
+    s/HERE/THERE/g
+        if ($status = filter_read()) > 0 ;
+
+    -- $$self ;
+    filter_del() if $$self <= 0 ;
+
+    $status ;
+}
+ 
+1 ;
+EOM
+ 
+writeFile($filename, <<EOM, <<'EOM') ;
+use $block (3) ;
+EOM
+print "
+HERE I am
+I am HERE
+HERE today gone tomorrow\n" ;
+EOM
+ 
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(17, ($? >>8) == 0) ;
+ok(18, $a eq <<EOM) ;
+
+THERE I am
+I am THERE
+HERE today gone tomorrow
+EOM
+
+
+# filter_read_exact
+####################
+ 
+writeFile("${block}.pm", <<EOM, <<'EOM') ;
+package ${block} ;
+use Filter::Util::Call ;
+ 
+EOM
+ 
+sub import
+{
+    my ($type) = shift ;
+ 
+    filter_add(bless [] )
+}
+ 
+sub filter
+{
+    my ($self) = @_ ;
+    my ($status) ;
+ 
+    if (($status = filter_read_exact(6)) > 0) {
+        s/HERE/THERE/g
+    }
+ 
+    $status ;
+}
+ 
+1 ;
+EOM
+ 
+writeFile($filename, <<EOM, <<'EOM') ;
+use $block ;
+EOM
+print "
+HERE I am
+I am HERE
+HERE today gone tomorrow\n" ;
+EOM
+ 
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(19, ($? >>8) == 0) ;
+ok(20, $a eq <<EOM) ;
+
+THERE I am
+I am HERE
+HERE today gone tomorrow
+EOM
+
 
 unlink $filename ;
 unlink "${module}.pm" ;

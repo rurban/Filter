@@ -1,7 +1,7 @@
 sub readFile
 {
     my ($filename) = @_ ;
-    my ($string) ;
+    my ($string) = '' ;
 
     open (F, "<$filename") 
 	or die "Cannot open $filename: $!\n" ;

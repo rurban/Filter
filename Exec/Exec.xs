@@ -1,9 +1,9 @@
 /* 
  * Filename : exec.xs
  * 
- * Author   : Paul Marquess <pmarquess@bfsec.bt.co.uk>
- * Date     : 20th June 1995
- * Version  : 1.0
+ * Author   : Paul Marquess 
+ * Date     : 11th December 1995
+ * Version  : 1.01
  *
  */
 
@@ -24,6 +24,13 @@ static int fdebug = 0 ;
 #define BUF_SIZE(sv)	SvCUR(BUF_SV(sv))
 #define BUF_NEXT(sv)	IoFMT_NAME(sv)
 #define BUF_END(sv)	(BUF_START(sv) + BUF_SIZE(sv))
+#define BUF_OFFSET(sv)  IoPAGE_LEN(sv) 
+ 
+#define SET_LEN(sv,len) \
+        do { SvPVX(sv)[len] = '\0'; SvCUR_set(sv, len); } while (0)
+ 
+#define BLOCKSIZE       100
+
 
 
 static int
@@ -71,13 +78,7 @@ int maxlen ;
                 warn ("*pipe_read(%d) returned %d, errno = %d %s\n", 
 			idx, r, errno, Strerror(errno)) ;
 
-#ifdef EAGAIN
-            if (errno != EAGAIN)
-#else
-#ifdef EWOULDBLOCK
-            if (errno != EWOULDBLOCK)
-#endif
-#endif
+            if (errno != VAL_EAGAIN)
 	    {
 		/* close the read pipe on error/eof */
     		if (fdebug)
@@ -102,6 +103,7 @@ int maxlen ;
              else {
                 /* eof, close write end of pipe */
                 close(pipe_out) ; 
+		wait() ; 
                 if (fdebug)
                     warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
 				idx, errno,
@@ -118,13 +120,7 @@ int maxlen ;
                  if (fdebug)
                     warn ("*pipe_read(%d) wrote %d bytes to pipe\n", idx, w) ;
 	     }
-#ifdef EAGAIN
-            else if (errno != EAGAIN) {
-#else
-#ifdef EWOULDBLOCK
-            else if (errno != EWOULDBLOCK) {
-#endif
-#endif
+            else if (errno != VAL_EAGAIN) {
                  if (fdebug)
                     warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
 				idx, errno, Strerror(errno)) ;
@@ -141,47 +137,25 @@ int maxlen ;
 }
 
 
-
-/* make_nonblock is taken more of less complete frok Tk */
 static void
 make_nonblock(f)
 int  f;
 {
-   int mode ;
-   int RETVAL = fcntl(f, F_GETFL);
-
-   if (RETVAL < 0)
+   int RETVAL ;
+   int mode = fcntl(f, F_GETFL);
+ 
+   if (mode < 0)
         croak("fcntl(f, F_GETFL) failed, RETVAL = %d, errno = %d",
-		RETVAL, errno) ;
-
-   mode = RETVAL;
-#ifdef O_NONBLOCK
-   /* POSIX style */
-#ifdef O_NDELAY
-   /* Ooops has O_NDELAY too - make sure we don't
-    * get SysV behaviour by mistake
-    */
-   if ((mode & O_NDELAY) || !(mode & O_NONBLOCK)) 
-       RETVAL = fcntl(f, F_SETFL, (mode & ~O_NDELAY) | O_NONBLOCK);
-#else
-   /* Standard POSIX */
-   if (!(mode & O_NONBLOCK))
-       RETVAL = fcntl(f, F_SETFL, mode | O_NONBLOCK);
-#endif
-#else
-   /* Not POSIX - better have O_NDELAY or we can't cope.
-    * for BSD-ish machines this is an acceptable alternative
-    * for SysV we can't tell "would block" from EOF but that is
-    * the way SysV is...
-    */
-   if (!(mode & O_NDELAY))
-       RETVAL = fcntl(f, F_SETFL, mode | O_NDELAY);
-#endif
-
+                mode, errno) ;
+ 
+   if (!(mode & VAL_O_NONBLOCK))
+       RETVAL = fcntl(f, F_SETFL, mode | VAL_O_NONBLOCK);
+ 
     if (RETVAL < 0)
-        croak("cannot create a non-blocking pipe, RETVAL = %d, errno = %d", 
-		RETVAL, errno) ;
+        croak("cannot create a non-blocking pipe, RETVAL = %d, errno = %d",
+                RETVAL, errno) ;
 }
+ 
 
 
 
@@ -254,14 +228,8 @@ int  * p1 ;
     close(c[READER]) ;
 
     /* make the pipe non-blocking */
-#if 0
-    fcntl(p[READER],F_SETFL,NON_BLOCKING); 
-    fcntl(c[WRITER],F_SETFL,NON_BLOCKING);
-#else
     make_nonblock(p[READER]) ;
     make_nonblock(c[WRITER]) ;
-#endif
-
 
     *p0 = p[READER] ;
     *p1 = c[WRITER] ;
@@ -281,7 +249,6 @@ filter_exec(idx, buf_sv, maxlen)
     char *	p ;
     char *	nl = "\n" ;
  
- 
     if (fdebug)
         warn ("filter_sh(idx=%d, SvCUR(buf_sv)=%d, maxlen=%d\n", 
 		idx, SvCUR(buf_sv), maxlen) ;
@@ -291,16 +258,18 @@ filter_exec(idx, buf_sv, maxlen)
            copy it now
         */
         if (n = SvCUR(buffer)) {
-	    out_ptr  = SvPVX(buffer) ;
+	    out_ptr  = SvPVX(buffer) + BUF_OFFSET(buffer) ;
 	    if (maxlen) { 
 		/* want a block */
     		if (fdebug)
 		    warn("filter_sh(%d) - wants a block\n", idx) ;
                 sv_catpvn(buf_sv, out_ptr, maxlen > n ? n : maxlen );
-                if(n <= maxlen)
-                    SvCUR_set(buffer, 0) ;
+                if(n <= maxlen) {
+		    BUF_OFFSET(buffer) = 0 ;
+                    SET_LEN(buffer, 0) ; 
+		}
                 else {
-                    memcpy(out_ptr, out_ptr+maxlen, n - maxlen);
+		    BUF_OFFSET(buffer) += maxlen ;
                     SvCUR_set(buffer, n - maxlen) ;
                 }
                 return SvCUR(buf_sv);
@@ -312,8 +281,8 @@ filter_exec(idx, buf_sv, maxlen)
                 if (p = ninstr(out_ptr, out_ptr + n - 1, nl, nl)) {
                     sv_catpvn(buf_sv, out_ptr, p - out_ptr + 1);
                     n = n - (p - out_ptr + 1);
-                    memmove(out_ptr, p + 1, n); 
-                    SvCUR(buffer) = n ;
+		    BUF_OFFSET(buffer) += (p - out_ptr + 1);
+                    SvCUR_set(buffer, n) ;
                     if (fdebug)
                         warn("recycle(%d) - leaving %d [%s], returning %d %d [%s]", 
 				idx, n, 
@@ -323,14 +292,16 @@ filter_exec(idx, buf_sv, maxlen)
                     return SvCUR(buf_sv);
                 }
                 else /* partial buffer didn't have any newlines, so copy it all */
-                    sv_catsv(buf_sv, buffer) ;
+		    sv_catpvn(buf_sv, out_ptr, n) ;
 	    }
  
         }
  
 
 	/* the buffer has been consumed, so reset the length */
-	SvCUR_set(buffer, 0) ;
+	SET_LEN(buffer, 0) ; 
+        BUF_OFFSET(buffer) = 0 ;
+
         /* read from the sub-process */
         if ( (n=pipe_read(buffer, idx, maxlen)) <= 0) {
  
@@ -342,6 +313,10 @@ filter_exec(idx, buf_sv, maxlen)
  
             /* filter_del(filter_sh);  */
  
+            /* If error, return the code */
+            if (n < 0)
+                return n ;
+ 
             /* return what we have so far else signal eof */
             return (SvCUR(buf_sv)>0) ? SvCUR(buf_sv) : n;
         }
@@ -350,32 +325,30 @@ filter_exec(idx, buf_sv, maxlen)
             warn("  filter_sh(%d): pipe_read returned %d %d: '%s'",
                 idx, n, SvCUR(buffer), SvPV(buffer,na));
  
-        /* The block just read didn't have a newline */
-        /* SvCUR(buffer) = n ; */
- 
-        /* copy over what we have decoded so far of the incomplete line */
-        /* sv_catpvn(buf_sv, out_ptr, n); */
-
     }
 
 }
 
 
-MODULE = Filter::exec		PACKAGE = Filter::exec
+MODULE = Filter::Util::Exec	PACKAGE = Filter::Util::Exec
+
+REQUIRE:	1.924
 
 BOOT:
     /* temporary hack to control debugging in toke.c */
-    /* filter_add(NULL, (fdebug) ? (SV*)"1" : (SV*)"0"); */
+    filter_add(NULL, (fdebug) ? (SV*)"1" : (SV*)"0"); 
 
 
 void
-import(module, command, ...)
+filter_add(module, command, ...)
     SV *	module = NO_INIT
     char **	command = (char**) safemalloc(items * sizeof(char*)) ;
+    PROTOTYPE:	$@
     CODE:
       	int i ;
       	int pipe_in, pipe_out ;
-	SV * sv = newSVpv("", 0) ;
+	/* SV * sv = newSVpv("", 0) ; */
+	SV * sv = newSV(1) ;
  
       if (fdebug)
           warn("Filter::exec::import\n") ;
@@ -392,6 +365,10 @@ import(module, command, ...)
 
       PIPE_IN(sv)   = pipe_in ;
       PIPE_OUT(sv)  = pipe_out ;
-      BUF_SV(sv)    = newSVpv("", 0) ;
+      /* BUF_SV(sv)    = newSVpv("", 0) ; */
+      BUF_SV(sv)    = newSV(1) ;
+      (void)SvPOK_only(BUF_SV(sv)) ;
       BUF_NEXT(sv)  = NULL ;
+      BUF_OFFSET(sv) = 0 ;
+
 

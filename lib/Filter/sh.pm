@@ -1,6 +1,9 @@
 package Filter::sh;
  
 use Carp ;
+$VERSION = 1.01 ;
+
+use Filter::Util::Exec ;
 
 sub import 
 { 
@@ -9,8 +12,9 @@ sub import
     croak ("Usage: use Filter::sh 'command'")
 	unless @args ;
 
-    require "Filter/exec.pm" ;
-    Filter::exec::import ($self, 'sh', '-c', "@args") ; 
+    #require "Filter/exec.pm" ;
+    #Filter::exec::import ($self, 'sh', '-c', "@args") ; 
+    Filter::Util::Exec::filter_add ($self, 'sh', '-c', "@args") ; 
 }
 
 1 ;
@@ -56,11 +60,11 @@ a single source file.
 
 =head1 AUTHOR
 
-Paul Marquess <pmarquess@bfsec.bt.co.uk>
+Paul Marquess 
 
 =head1 DATE
 
-20th June 1995.
+11th December 1995.
 
 =cut
 

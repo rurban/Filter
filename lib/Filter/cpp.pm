@@ -2,6 +2,9 @@ package Filter::cpp;
  
 use Config ;
 use Carp ;
+use Filter::Util::Exec ;
+
+$VERSION = 1.01 ;
 
 sub import 
 { 
@@ -10,9 +13,9 @@ sub import
     croak ("Cannot find cpp")
 	if $Config{'cppstdin'} eq '' ;
 
-    require "Filter/exec.pm" ;
+    #require "Filter/exec.pm" ;
     
-    Filter::exec::import ($self, 'sh', '-c', 
+    Filter::Util::Exec::filter_add ($self, 'sh', '-c', 
 		"$Config{'cppstdin'} $Config{'cppminus'} 2>/dev/null") ;
 }
 
@@ -59,11 +62,11 @@ And here is what it will output:
 
 =head1 AUTHOR
 
-Paul Marquess <pmarquess@bfsec.bt.co.uk>
+Paul Marquess 
 
 =head1 DATE
 
-20th June 1995.
+11th December 1995.
 
 =cut
 
