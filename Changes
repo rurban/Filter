@@ -255,3 +255,9 @@
   * Also the place where the wait is called has been changed.
     Deadlock condition spotted by Andrej Czapszys.
 
+1.30 16 August 2003
+----
+
+  * rewording of reference to Filter::Simple 
+
+  * merged core patch 18269
