@@ -227,3 +227,20 @@
   * Call & Exec now use the CXT* macros
 
   * moved all backward compatability code into ppport.h
+
+1.27 
+----
+
+  * Patch from Wim Verhaegen to allow cpp to be an absolute path 
+
+  * Patch from Gurusamy Sarathy to fix a Windods core dump in Exec.xs --
+    dMY_CXT was being accessed before it was ititialised.
+
+  * Merged core patch 13940
+
+1.28 
+----
+
+  * Fixed bug in Filter::cpp where $Config{cppstdin} refered to an executable
+    with an absolute path. Bug spotted by P. Kent.
+

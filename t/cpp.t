@@ -5,25 +5,39 @@ use Config;
 
 BEGIN 
 {
-    my $foundCPP = 0 ;
+    my $cpp;
+    my $sep;
     if ($^O eq 'MSWin32') {
-        # Check if cpp is installed
-        foreach (split ";", $ENV{PATH}) {
-            if (-e "$_/cpp.exe") {
+        $cpp = 'cpp.exe' ;
+        $sep = ';';
+    }
+    else {
+        ($cpp) = $Config{cppstdin} =~ /^(\S+)/;
+        $sep = ':';
+    }
+     
+    if (! $cpp) {
+        print "1..0 # Skipping cpp not found on this system.\n" ;
+        exit 0 ;
+    }
+     
+    # Check if cpp is installed
+    if ( ! -x $cpp) {
+        my $foundCPP = 0 ;
+        foreach my $dir (split($sep, $ENV{PATH}), '')
+        {
+            if (-x "$dir/$cpp")
+            {
                 $foundCPP = 1;
                 last ;
             }
         }
-    }
-    else {
-        $foundCPP = 1
-            if $Config{'cppstdin'} ne '' ;
-    }
-
-    if (! $foundCPP) {
-        print "1..0 # Skipping cpp not found on this system.\n" ;
-        exit 0 ;
-    }
+     
+        if (! $foundCPP) {
+            print "1..0 # Skipping cpp not found on this system.\n" ;
+            exit 0 ;
+        }
+    }                              
 }
 
 use vars qw( $Inc $Perl ) ;

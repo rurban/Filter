@@ -24,18 +24,20 @@ croak ("Cannot find cpp\n")
     if ! $cpp;
 
 # Check if cpp is installed
-my $foundCPP = 0 ;
-foreach my $dir (split $sep, $ENV{PATH})
-{
-    if (-x "$dir/$cpp")
+if ( ! -x $cpp) {
+    my $foundCPP = 0 ;
+    foreach my $dir (split($sep, $ENV{PATH}), '')
     {
-        $foundCPP = 1;
-        last ;
+        if (-x "$dir/$cpp")
+        {
+            $foundCPP = 1;
+            last ;
+        }
     }
-}
 
-croak "Cannot find cpp\n"
-    if ! $foundCPP ;
+    croak "Cannot find cpp\n"
+        if ! $foundCPP ;
+}
 
 sub import 
 { 

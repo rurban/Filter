@@ -66,7 +66,6 @@ typedef struct {
 static void
 pipe_write(void *args)
 {
-    dMY_CXT;
     thrarg *targ = (thrarg *)args;
     SV *sv = targ->sv;
     int idx = targ->idx;
@@ -81,6 +80,8 @@ pipe_write(void *args)
 #ifdef USE_ITHREADS
     PERL_SET_THX(targ->parent);
 #endif
+    {
+    dMY_CXT;
     free(args);
     for(;;)
     {       
@@ -126,6 +127,7 @@ pipe_write(void *args)
 	    write_started = 0;
 	    return;
 	}
+    }
     }
 }
 
