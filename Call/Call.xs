@@ -3,7 +3,7 @@
  * 
  * Author   : Paul Marquess 
  * Date     : 15th December 1995
- * Version  : 1.02
+ * Version  : 1.03
  *
  */
 
@@ -112,10 +112,10 @@ filter_call(idx, buf_sv, maxlen)
     	    PUSHMARK(sp) ;
 
 	    if (CODE_REF(my_sv)) {
-    	        count = perl_call_sv(PERL_OBJECT(my_sv), G_SCALAR);
+    	        count = perl_call_sv((SV*)PERL_OBJECT(my_sv), G_SCALAR);
 	    }
 	    else {
-                XPUSHs(PERL_OBJECT(my_sv)) ;  
+                XPUSHs((SV*)PERL_OBJECT(my_sv)) ;  
 	
     	        PUTBACK ;
 
@@ -200,7 +200,7 @@ real_import(object, perlmodule, coderef)
         filter_add(filter_call, sv) ;
 
 	PERL_MODULE(sv) = savepv(perlmodule) ;
-	PERL_OBJECT(sv) = newSVsv(object) ;
+	PERL_OBJECT(sv) = (GV*) newSVsv(object) ;
 	FILTER_ACTIVE(sv) = TRUE ;
         BUF_OFFSET(sv) = 0 ;
 	CODE_REF(sv)   = coderef ;

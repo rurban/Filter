@@ -35,7 +35,8 @@ static unsigned XOR [BLOCKSIZE] = {'P', 'e', 'r', 'l' } ;
 #define FILTER_LINE_NO(s)	IoLINES(s)
 #define FIRST_TIME(s)		IoFLAGS(s)
 
-#define ENCRYPT_SV(s)		IoTOP_GV(s)
+#define ENCRYPT_GV(s)		IoTOP_GV(s)
+#define ENCRYPT_SV(s)		((SV*) ENCRYPT_GV(s))
 #define ENCRYPT_BUFFER(s)	SvPVX(ENCRYPT_SV(s))
 #define CLEAR_ENCRYPT_SV(s)	SvCUR_set(ENCRYPT_SV(s), 0)
 
@@ -200,7 +201,7 @@ filter_decrypt(idx, buf_sv, maxlen)
 	            n = n - (p - out_ptr + 1);
 		    DECRYPT_OFFSET(my_sv) += (p - out_ptr + 1) ;
 	            SvCUR_set(DECRYPT_SV(my_sv), n) ;
-#ifdef FDEBUG
+#ifdef FDEBUG 
 	            if (fdebug)
 		        warn("recycle %d - leaving %d, returning %d [%.999s]", 
 				idx, n, SvCUR(buf_sv), SvPVX(buf_sv)) ;
@@ -253,10 +254,10 @@ filter_decrypt(idx, buf_sv, maxlen)
 	/* Now decrypt a block */
 	n = Decrypt(ENCRYPT_SV(my_sv), DECRYPT_SV(my_sv)) ;
 
-#ifdef FDEBUG
-	if (fdebug)
-	    warn("Decrypt (%d) returned %d\n", idx, n) ;
-#endif
+#ifdef FDEBUG 
+	if (fdebug) 
+	    warn("Decrypt (%d) returned %d [%.999s]\n", idx, n, SvPVX(DECRYPT_SV(my_sv)) ) ;
+#endif 
 
     }
 }
@@ -297,7 +298,7 @@ import(module)
         filter_add(filter_decrypt, sv) ;
 	FIRST_TIME(sv) = TRUE ;
 
-        ENCRYPT_SV(sv) = newSV(BLOCKSIZE) ;
+        ENCRYPT_GV(sv) = (GV*) newSV(BLOCKSIZE) ;
         (void)SvPOK_only(DECRYPT_SV(sv));
         (void)SvPOK_only(ENCRYPT_SV(sv));
         SET_LEN(DECRYPT_SV(sv), 0) ;

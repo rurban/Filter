@@ -98,3 +98,12 @@
 ----
 
   * decrypt now calls filter_del.
+
+1.11 Tuesday 29th October 1996
+----
+
+  * test harness for decrypt doesn't display the debugger banner
+    message any more.
+
+  * casted uses of IoTOP_GV in Call.xs, decrypt.xs and Exec.xs to keep
+    the IRIX compiler happy.

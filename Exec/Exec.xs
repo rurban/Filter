@@ -3,7 +3,7 @@
  * 
  * Author   : Paul Marquess 
  * Date     : 11th December 1995
- * Version  : 1.01
+ * Version  : 1.02
  *
  */
 
@@ -20,8 +20,8 @@ static int fdebug = 0 ;
 #define PIPE_OUT(sv)	IoPAGE(sv)
 
 #define BUF_SV(sv)	IoTOP_GV(sv)
-#define BUF_START(sv)	SvPVX(BUF_SV(sv))
-#define BUF_SIZE(sv)	SvCUR(BUF_SV(sv))
+#define BUF_START(sv)	SvPVX((SV*) BUF_SV(sv))
+#define BUF_SIZE(sv)	SvCUR((SV*) BUF_SV(sv))
 #define BUF_NEXT(sv)	IoFMT_NAME(sv)
 #define BUF_END(sv)	(BUF_START(sv) + BUF_SIZE(sv))
 #define BUF_OFFSET(sv)  IoPAGE_LEN(sv) 
@@ -93,8 +93,8 @@ int maxlen ;
         if (BUF_NEXT(sv) >= BUF_END(sv))
         {       
 	    /* empty BUF_SV */
-	    SvCUR_set(BUF_SV(sv), 0) ;
-            if ((len = FILTER_READ(idx+1, BUF_SV(sv), 0)) > 0) {
+	    SvCUR_set((SV*)BUF_SV(sv), 0) ;
+            if ((len = FILTER_READ(idx+1, (SV*) BUF_SV(sv), 0)) > 0) {
 		BUF_NEXT(sv) = BUF_START(sv);
                 if (fdebug)
                     warn ("*pipe_read(%d) Filt Rd returned %d %d [%*s]\n", 
@@ -367,7 +367,7 @@ filter_add(module, command, ...)
       PIPE_IN(sv)   = pipe_in ;
       PIPE_OUT(sv)  = pipe_out ;
       /* BUF_SV(sv)    = newSVpv("", 0) ; */
-      BUF_SV(sv)    = newSV(1) ;
+      BUF_SV(sv)    = (GV*) newSV(1) ;
       (void)SvPOK_only(BUF_SV(sv)) ;
       BUF_NEXT(sv)  = NULL ;
       BUF_OFFSET(sv) = 0 ;

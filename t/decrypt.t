@@ -63,6 +63,7 @@ ok(2, $a eq $expected_output) ;
 # try to catch error cases
 
 # case 1 - Perl debugger
+$ENV{'PERLDB_OPTS'} = 'noTTY' ;
 $a = `$Perl $Inc -d $filename 2>&1` ;
 ok(3, $a =~ /debugger disabled/) ;
 

@@ -22,6 +22,7 @@ examples/closure/Count.pm
 examples/closure/NewSubst.pm    
 examples/closure/UUdecode.pm
 examples/closure/Decompress.pm  
+examples/closure/Include.pm  
 examples/closure/Joe2Jim.pm  
 examples/closure/Subst.pm       
 examples/filtdef
