@@ -78,7 +78,7 @@ sub import {
     	    my ($status) ;
  
     	    if (($status = filter_read()) > 0) {
-        	s/ABC/DEF/g
+        	s/ABC/DEF/g 
     	    }
     	    $status ;
   	} ) ;
@@ -651,7 +651,6 @@ THERE I am
 I am HERE
 HERE today gone tomorrow
 EOM
-
 
 unlink $filename ;
 unlink "${module}.pm" ;

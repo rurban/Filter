@@ -48,7 +48,7 @@ foreach $file (@ARGV)
     $block = '';
     while ($size = read(F, $block, $BLOCKSIZE) )
     {
-        print O $block ^ substr($XOR, 0, length $block) ;
+        print O ($block ^ substr($XOR, 0, length $block)) ;
     }
 
     close F ;

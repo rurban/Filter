@@ -3,7 +3,7 @@
  * 
  * Author   : Paul Marquess 
  * Date     : 15th December 1995
- * Version  : 1.03
+ * Version  : 1.04
  *
  */
 
@@ -40,8 +40,8 @@ filter_call(idx, buf_sv, maxlen)
     int n;
 
     if (fdebug)
-	warn("**** In filter_call - maxlen = %d, len buf = %d idx = %d\n", 
-		maxlen, SvCUR(buf_sv), idx ) ;
+	warn("**** In filter_call - maxlen = %d, out len buf = %d idx = %d my_sv = %d [%s]\n", 
+		maxlen, SvCUR(buf_sv), idx, SvCUR(my_sv), SvPVX(my_sv) ) ;
 
     while (1) {
 
@@ -107,7 +107,8 @@ filter_call(idx, buf_sv, maxlen)
 	    current_idx = idx ;
 
 	    SAVESPTR(GvSV(defgv)) ;	/* save $_ */
-	    GvSV(defgv) = my_sv ;	/* make $_ use our buffer */
+	    /* make $_ use our buffer */
+	    GvSV(defgv) = sv_2mortal(newSVpv("", 0)) ; 
 
     	    PUSHMARK(sp) ;
 
@@ -131,8 +132,11 @@ filter_call(idx, buf_sv, maxlen)
 	    n = POPi ;
 
 	    if (fdebug)
-	        warn("status = %d, length op buf = %d\n",
-		     n, SvCUR(my_sv)) ;
+	        warn("status = %d, length op buf = %d [%s]\n",
+		     n, SvCUR(GvSV(defgv)), SvPVX(GvSV(defgv)) ) ;
+	    if (SvCUR(GvSV(defgv)))
+	        sv_setpvn(my_sv, SvPVX(GvSV(defgv)), SvCUR(GvSV(defgv))) ; 
+
     	    PUTBACK ;
     	    FREETMPS ;
     	    LEAVE ;
@@ -144,7 +148,7 @@ filter_call(idx, buf_sv, maxlen)
 	{
 	    /* Either EOF or an error */
 
-	    if (fdebug)
+	    if (fdebug) 
 	        warn ("filter_read %d returned %d , returning %d\n", idx, n,
 	            (SvCUR(buf_sv)>0) ? SvCUR(buf_sv) : n);
 

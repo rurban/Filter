@@ -107,3 +107,12 @@
 
   * casted uses of IoTOP_GV in Call.xs, decrypt.xs and Exec.xs to keep
     the IRIX compiler happy.
+
+1.12 Tuesday 25th March 1997
+----
+
+  * Patch from Andreas Koenig to make tee.xs compile when useperio is
+    enabled.
+
+  * Fix Call interface to work with 5.003_94
+

@@ -22,13 +22,13 @@ filter_tee(idx, buf_sv, maxlen)
  
     if ( (len = FILTER_READ(idx+1, buf_sv, maxlen)) <=0 ) {
         /* error or eof */
-	fclose(fil) ;
+	PerlIO_close(fil) ;
         filter_del(filter_tee);      /* remove me from filter stack */
         return len;
     }
 
     /* write to the tee'd file */
-    fwrite(SvPVX(buf_sv), len, 1, fil) ;
+    PerlIO_write(fil, SvPVX(buf_sv), len) ;
 
     return SvCUR(buf_sv);
 }
@@ -55,7 +55,7 @@ import(module, filename)
 		mode = "a" ;
 	    }
 	}
-	if ((fil = fopen(filename, mode)) == NULL) 
+	if ((fil = PerlIO_open(filename, mode)) == NULL) 
 	    croak("Filter::tee - cannot open file '%s': %s", 
 			filename, Strerror(errno)) ;
 
