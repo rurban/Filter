@@ -7,7 +7,28 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION = '1.01' ;
+$VERSION = '1.02' ;
+
+if ($^O eq 'MSSin32')
+{
+    # Check if cpp is installed
+    my $foundCPP = 0 ;
+    foreach (split ":", $ENV{PATH})
+    {
+        if (-e "$_/cpp.exe")
+        {
+            $foundCPP = 1;
+            last ;
+        }
+    }
+    croak "Cannot find cpp\n"
+        if ! $foundCPP ;
+}
+else
+{
+    croak ("Cannot find cpp")
+	    if $Config{'cppstdin'} eq '' ;
+}
 
 sub import 
 { 
@@ -16,13 +37,10 @@ sub import
     #require "Filter/exec.pm" ;
 
     if ($^O eq 'MSWin32') {
-        # assume GNU cpp is installed
         Filter::Util::Exec::filter_add ($self, 'cmd', '/c', 
 		"cpp.exe 2>nul") ;
     }
     else {
-        croak ("Cannot find cpp")
-	    if $Config{'cppstdin'} eq '' ;
         Filter::Util::Exec::filter_add ($self, 'sh', '-c', 
 		"$Config{'cppstdin'} $Config{'cppminus'} 2>/dev/null") ;
     }
@@ -68,6 +86,24 @@ And here is what it will output:
 
     a = 3
     Hello FRED
+
+This example below, provided by Michael G Schwern, shows a clever way
+to get Perl to use a C pre-processor macro when the Filter::cpp module
+is available, or to use a Perl sub when it is not.
+
+    # use Filter::cpp if we can.
+    BEGIN { eval 'use Filter::cpp' }
+
+    sub PRINT {
+        my($string) = shift;
+
+    #define PRINT($string) \
+        (print $string."\n")
+    }
+     
+    PRINT("Mu");
+
+Look at Michael's Tie::VecArray module for a practical use.
 
 =head1 AUTHOR
 

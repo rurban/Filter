@@ -55,7 +55,7 @@ if ($@) {
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.21',
+	VERSION   => '1.22',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz'},
 	($] >= 5.005

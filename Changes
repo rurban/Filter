@@ -184,3 +184,13 @@
   * The module, the examples & the test harness are now all strict
     & warnings clean.  
 
+1.22 Wednesday 21st February 20001
+----
+
+  * Added Michael G Schwern's example of a practical use ot Filter::cpp
+    to the pod.
+
+  * Filter::cpp assumed that cpp.exe is always available on MSWin32. Logic
+    has been added to check for the existence of cpp.exe.
+
+  * Added a reference to Damian Conway's excellent Filter::Simple module.

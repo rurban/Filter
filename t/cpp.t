@@ -1,6 +1,31 @@
 
 use strict;
 use warnings;
+use Config;
+
+BEGIN 
+{
+    my $foundCPP = 0 ;
+    if ($^O eq 'MSSin32') {
+        # Check if cpp is installed
+        my $foundCPP = 0 ;
+        foreach (split ":", $ENV{PATH}) {
+            if (-e "$_/cpp.exe") {
+                $foundCPP = 1;
+                last ;
+            }
+        }
+    }
+    else {
+        $foundCPP = 1
+            if $Config{'cppstdin'} ne '' ;
+    }
+
+    if (! $foundCPP) {
+        print "1..0 # Skipping cpp not found on this system.\n" ;
+        exit 0 ;
+    }
+}
 
 use vars qw( $Inc $Perl ) ;
 
