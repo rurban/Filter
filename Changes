@@ -215,3 +215,8 @@
   * Changed na to PL_na in decrypt.xs
 
   * Merged Core patches 10752, 11434
+
+1.25 
+----
+
+  * Fixed minor typo in Makefile.PL

@@ -11,7 +11,7 @@ BEGIN
 
 use strict;
 
-my @files = qw( util
+my @files = qw( filter-util.pl
              Call/Call.pm 
              Exec/Exec.pm 
              decrypt/decrypt.pm decrypt/decr decrypt/encrypt
@@ -50,7 +50,7 @@ else
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.24',
+	VERSION   => '1.25',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz'},
 	($] >= 5.005
