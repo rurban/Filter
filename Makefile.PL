@@ -4,8 +4,13 @@ require 5.002 ;
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.16',
+	VERSION   => '1.17',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz'},
+	($] >= 5.005
+	    ? (ABSTRACT	=> 'Source Filters',
+	       AUTHOR  	=> 'Paul Marquess <Paul.Marquess@btinternet.com>')
+	    : ()
+	),
 	) ;
 

@@ -43,3 +43,4 @@ tee/Makefile.PL
 tee/tee.pm
 tee/tee.xs
 util
+perlfilter.pod

@@ -144,3 +144,10 @@
 
   * Upgraded to use the new PL_* symbols. Means the module can build with 
     Perl5.005_5*.
+
+1.17 Friday 10th December 1999
+----
+
+  * Addition of perlfilter.pod. This is the Source Filters article from
+    The Perl Journal, issue 11 and is identical to the file that is
+    distributed with Perl starting withversion 5.005_63.
