@@ -2,8 +2,8 @@
  * Filename : decrypt.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 26th March 2000
- * Version  : 1.04
+ * Date     : 20th July 2000
+ * Version  : 1.05
  *
  */
 
@@ -281,6 +281,9 @@ MODULE = Filter::decrypt	PACKAGE = Filter::decrypt
 PROTOTYPES:	DISABLE
 
 BOOT:
+    /* Check for the presence of the Perl Compiler */
+    if (gv_stashpvn("B", 1, FALSE))
+        croak("Aborting, Compiler detected") ;
 #ifndef BYPASS
     /* Don't run if this module is dynamically linked */
     if (!isALPHA(SvPV(GvSV(CvFILEGV(cv)), na)[0]))

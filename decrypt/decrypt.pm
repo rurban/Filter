@@ -4,7 +4,7 @@ require 5.002 ;
 require DynaLoader;
 @ISA = qw(DynaLoader);
 use vars qw($VERSION);
-$VERSION = "1.03" ;
+$VERSION = "1.04" ;
 
 bootstrap Filter::decrypt ;
 1;
@@ -32,10 +32,14 @@ a proper decryption algorithm to develop your own decryption filter.
 It is important to note that a decryption filter can I<never> provide
 complete security against attack. At some point the parser within Perl
 needs to be able to scan the original decrypted source. That means that
-at some stage fragments of the source will exist in a memory buffer.
+at some stage fragments of the source will exist in a memory buffer. 
+
+Also, with the introduction of the Perl Compiler backend modules, and
+the B::Deparse module in particular, using a Source Filter to hide source
+code is becoming an increasingly futile exercise.
 
 The best you can hope to achieve by decrypting your Perl source using a
-source filter is to make it impractical to crack.
+source filter is to make it unavailable to the casual user.
 
 Given that proviso, there are a number of things you can do to make
 life more difficult for the prospective cracker.
@@ -70,6 +74,24 @@ source filter). It is possible to peek into the pipe that connects to
 the sub-process.
 
 =item 6.
+
+Check that the Perl Compiler isn't being used. 
+
+There is code in the BOOT: section of decrypt.xs that shows how to detect
+the presence of the Compiler. Make sure you include it in your module.
+
+Assuming you haven't taken any steps to spot when the compiler is in
+use and you have an encrypted Perl script called "myscript.pl", you can
+get access the source code inside it using the perl Compiler backend,
+like this
+
+    perl -MO=Deparse myscript.pl
+
+Note that even if you have included the BOOT: test, it is still
+possible to use the Deparse module to get the source code for individual
+subroutines.
+
+=item 7.
 
 Do not use the decrypt filter as-is. The algorithm used in this filter
 has been purposefully left simple.

@@ -24,10 +24,16 @@ sub writeFile
 
 sub ok
 {
-    my($number, $result) = @_ ;
+    my($number, $result, $note) = @_ ;
+ 
+    $note = "" if ! defined $note ;
+    if ($note) {
+        $note = "# $note" if $note !~ /^\s*#/ ;
+        $note =~ s/^\s*/ / ;
+    }
 
-    print "ok $number\n"     if $result ;
-    print "not ok $number\n" if !$result ;
+    print "not " if !$result ;
+    print "ok ${number}${note}\n";
 }
 
 $Inc = '' ;

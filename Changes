@@ -159,3 +159,9 @@
 
   * Fixed a problem where an __END__ or __DATA__ could crash Perl.
 
+1.19 Thursday 20th July 2000
+----
+
+  * Added a test in decrypt.xs to check if the Compiler backend is in use.
+    Thanks to Andrew Johnson for bringing this to my attention.
+

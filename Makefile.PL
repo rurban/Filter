@@ -11,7 +11,7 @@ BEGIN
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.18',
+	VERSION   => '1.19',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz'},
 	($] >= 5.005
