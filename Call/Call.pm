@@ -6,7 +6,7 @@ require Exporter;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
-$VERSION = 1.01 ;
+$VERSION = 1.02 ;
 
 use Carp ;
 use strict ;
@@ -36,11 +36,16 @@ sub filter_add($)
 {
     my($obj) = @_ ;
 
+    # Did we get a code reference?
+    my $coderef = (ref $obj eq 'CODE') ;
+
     # If the parameter isn't already a reference, make it one.
     $obj = \$obj unless ref $obj ;
 
+    $obj = bless ($obj, (caller)[0]) unless $coderef ;
+
     # finish off the installation of the filter in C.
-    Filter::Util::Call::real_import(bless ($obj, (caller)[0]), (caller)[0]) ;
+    Filter::Util::Call::real_import($obj, (caller)[0], $coderef) ;
 }
 
 bootstrap Filter::Util::Call ;
@@ -57,8 +62,12 @@ Filter::Util::Call - Perl Source Filter
 This module provides you with the framework to write I<Source Filters>
 in Perl.
 
-A I<Perl Source Filter> takes the form of a Perl module with the
-following minimal structure:
+A I<Perl Source Filter> is implemented as a Perl module. The structure
+of the module can take one of two broadly similar formats. To
+distinguish between them, the first will be referred to as I<method
+filter> and the second as I<closure filter>.
+
+Here is a skeleton for the I<method filter>:
 
     package MyFilter ;
     
@@ -67,7 +76,6 @@ following minimal structure:
     sub import
     {
         my($type, @arguments) = @_ ;
-    
         filter_add([]) ;
     }
     
@@ -77,24 +85,50 @@ following minimal structure:
         my($status) ;
     
         $status = filter_read() ;
-    
         $status ;
     }
     
     1 ;
 
-To make use of the filter module above, place the line below in a Perl
-source file.
+and this is the equivalent skeleton for the I<closure filter>:
+
+    package MyFilter ;
+    
+    use Filter::Util::Call ;
+
+    sub import
+    {
+        my($type, @arguments) = @_ ;
+    
+        filter_add(
+            sub 
+            {
+                my($status) ;
+                $status = filter_read() ;
+                $status ;
+            } )
+    }
+    
+    1 ;
+
+To make use of either of the two filter modules above, place the line
+below in a Perl source file.
 
     use MyFilter; 
 
-In fact, the skeleton module shown above is a fully functional I<Source
-Filter>, albeit a fairly useless one. All it does is filter the source
-stream without modifying it at all.
+In fact, the skeleton modules shown above are fully functional I<Source
+Filters>, albeit fairly useless ones. All they does is filter the
+source stream without modifying it at all.
 
-As you can see this particular module consists of a C<use> statement
-and two methods, namely C<import> and C<filter>. Each of these will
-will be discussed.
+As you can see both modules have a broadly similar structure. They both
+make use of C<Filter::Util::Call> and both have an C<import> method.
+The difference between them is that the I<method filter> requires a
+I<filter> method, whereas the I<closure filter> gets the equivalent of a
+I<filter> method with the anonymous sub passed to I<filter_add>.
+
+To make proper use of the I<closure filter> shown above you need to
+have a good understanding of the concept of a I<closure>. See
+L<perlref> for more details on the mechanics of I<closures>.
 
 =head2 B<use Filter::Util::Call>
 
@@ -113,8 +147,8 @@ in a source file (See L<perlfunc/import> for more details on
 C<import>).
 
 It will always have at least one parameter automatically passed by Perl
-- this corresponds to the name of the package. In the example above
-that will be C<"MyFilter">.
+- this corresponds to the name of the package. In the example above it
+will be C<"MyFilter">.
 
 Apart from the first parameter, import can accept an optional list of
 parameters. These can be used to pass parameters to the filter. For
@@ -135,45 +169,63 @@ filter by calling C<filter_add>.
 B<filter_add()>
 
 The function, C<filter_add>, actually installs the filter. It takes one
-parameter which should be a reference. This reference is used to store
-context information. The reference will be I<blessed> into the package
-by C<filter_add>. See the filters at the end of this documents
-for examples of using context information.
+parameter which should be a reference. The kind of reference used will
+dictate which of the two filter types will be used.
 
-=head2 B<filter()>
+If a CODE reference is used then a I<closure filter> will be assumed.
 
-The C<filter> method is where the main processing for the filter is
-done.
+If a CODE reference is not used, a I<method filter> will be assumed.
+The reference can be used to store context information. The reference
+will be I<blessed> into the package by C<filter_add>.
 
-It expects a single parameter, C<$self>. This is the same reference
-that was passed to C<filter_add> but is now blessed into the filter's
-package. See the example filters later on for details of using
-C<$self>.
+See the filters at the end of this documents for examples of using
+context information using both I<method filters> and I<closure
+filters>.
+
+=head2 B<filter() and anonymous sub>
+
+Both the C<filter> method used with a I<method filter> and the
+anonymous sub used with a I<closure filter> is where the main
+processing for the filter is done.
+
+The big difference between the two types of filter is that the I<method
+filter> uses the object passed to the method to store any context data,
+whereas the I<closure filter> uses the lexical variables that are
+maintained by the closure.
+
+Note that the single parameter passed to the I<method filter>,
+C<$self>, is the same reference that was passed to C<filter_add>
+blessed into the filter's package. See the example filters later on for
+details of using C<$self>.
+
+
+Here is a list of the common features of the anonymous sub and the
+C<filter()> method.
 
 =over 5
 
 =item B<$_>
 
-Although C<$_> doesn't actually appear explicitly in the sample filter
+Although C<$_> doesn't actually appear explicitly in the sample filters
 above, it is implicitly used in a number of places.
 
-Firstly, when C<filter> is called, a local copy of C<$_> will be
-created for the method. It will always contain the empty string at this
-point.
+Firstly, when C<filter> or the anonymous sub are called, a local copy
+of C<$_> will be created. It will always contain the empty string at
+this point.
 
 Next, both C<filter_read> and C<filter_read_exact> will append any
 source data that is read to the end of C<$_>.
 
-Finally, when C<filter> is finished processing, it is expected to
-return the filtered source using C<$_>.
+Finally, when C<filter> or the anonymous sub are finished processing,
+they are expected to return the filtered source using C<$_>.
 
 This implicit use of C<$_> greatly simplifies the filter.
 
 =item B<$status>
 
-The status value that is returned by the user's C<filter> method and
-the C<filter_read> and C<read_exact> functions take the same set of
-values, namely:
+The status value that is returned by the user's C<filter> method or
+anonymous sub and the C<filter_read> and C<read_exact> functions take
+the same set of values, namely:
 
     < 0  Error
     = 0  EOF
@@ -182,7 +234,7 @@ values, namely:
 =item B<filter_read> and B<filter_read_exact>
 
 These functions are used by the filter to obtain either a line or block
-from the next filter in the chain or the actual source file of there
+from the next filter in the chain or the actual source file if there
 aren't any other filters.
 
 The function C<filter_read> takes two forms:
@@ -193,8 +245,8 @@ The function C<filter_read> takes two forms:
 The first form is used to request a I<line>, the second requests a
 I<block>.
 
-In the line mode, C<filter_read> will append the next source line to
-the end of the C<$_> scalar.
+In line mode, C<filter_read> will append the next source line to the
+end of the C<$_> scalar.
 
 In block mode, C<filter_read> will append a block of data which is <=
 C<$size> to the end of the C<$_> scalar. It is important to emphasise
@@ -226,11 +278,14 @@ See L<Example 4: Using filter_del> for details.
 Here are a few examples which illustrate the key concepts - as such
 most of them are of little practical use.
 
+The C<examples> sub-directory has copies of all these filters
+implemented both as I<method filters> and as I<closure filters>.
+
 =head2 Example 1: A simple filter.
 
-Below is a filter which is hard-wired to replace all occurrences of the
-string C<"Joe"> to C<"Jim">. Not particularly useful, but it is the
-first example and I wanted to keep it simple.
+Below is a I<method filter> which is hard-wired to replace all
+occurrences of the string C<"Joe"> to C<"Jim">. Not particularly
+useful, but it is the first example and I wanted to keep it simple.
 
     package Joe2Jim ;
     
@@ -268,38 +323,33 @@ And this is what the script above will print:
 
 The previous example was not particularly useful. To make it more
 general purpose we will make use of the context data and allow any
-arbitrary I<from> and I<to> strings to be used. To reflect its enhanced
-role, the filter is called C<Subst>.
+arbitrary I<from> and I<to> strings to be used. This time we will use a
+I<closure filter>. To reflect its enhanced role, the filter is called
+C<Subst>.
 
     package Subst ;
-
+ 
     use Filter::Util::Call ;
     use Carp ;
  
-    sub filter
-    {
-        my ($self) = @_ ;
-        my ($status) ;
-        my ($from) = $self->[0] ;
-        my ($to) = $self->[1] ;
- 
-        s/$from/$to/
-            if ($status = filter_read()) > 0 ;
-        $status ;
-    }
- 
     sub import
     {
-        my ($self, @args) = @_ ;
         croak("usage: use Subst qw(from to)")
-            unless @args == 2 ;
-        filter_add([ @args ]) ;
+            unless @_ == 3 ;
+        my ($self, $from, $to) = @_ ;
+        filter_add(
+            sub 
+            {
+                my ($status) ;
+                s/$from/$to/
+                    if ($status = filter_read()) > 0 ;
+                $status ;
+            })
     }
- 
     1 ;
- 
+
 and is used like this:
- 
+
     use Subst qw(Joe Jim) ;
     print "Where is Joe?\n" ;
 
@@ -307,8 +357,8 @@ and is used like this:
 =head2 Example 3: Using the context within the filter
 
 Here is a filter which a variation of the C<Joe2Jim> filter. As well as
-substituting all occurrences of C<"Joe"> to C<"Jim"> it keeps a count of
-the number of substitutions made in the context object.
+substituting all occurrences of C<"Joe"> to C<"Jim"> it keeps a count
+of the number of substitutions made in the context object.
 
 Once EOF is detected (C<$status> is zero) the filter will insert an
 extra line into the source stream. When this extra line is executed it
@@ -346,7 +396,6 @@ Note that C<$status> is set to C<1> in this case.
  
     1 ;
 
-
 Here is a script which uses it:
 
     use Count ;
@@ -358,7 +407,6 @@ Outputs:
     Hello Jim
     Where is Jim
     Made 2 substitutions
-
 
 =head2 Example 4: Using filter_del
 
@@ -376,46 +424,39 @@ When used as a filter we want to invoke it like this:
 Here is the module.
 
     package NewSubst ;
-
+ 
     use Filter::Util::Call ;
     use Carp ;
  
-    sub filter
-    {
-        my ($self) = @_ ;
-        my ($status) ;
- 
-        if (($status = filter_read()) > 0) {
-
-            $self->{Found} = 1
-                if $self->{Found} == 0 and  /$self->{Start}/ ;
-
-            if ($self->{Found}) {
-                s/$self->{From}/$self->{To}/ ;
-	        filter_del() if /$self->{Stop}/ ;
-            }
-            
-        }
-        $status ;
-    }
- 
     sub import
     {
-        my ($self, @args) = @_ ;
+        my ($self, $start, $stop, $from, $to) = @_ ;
+        my ($found) = 0 ;
         croak("usage: use Subst qw(start stop from to)")
-            unless @args == 4 ;
-
-        filter_add( { Start => $args[0],
-                      Stop  => $args[1],
-                      From  => $args[2],
-                      To    => $args[3],
-                      Found => 0 }
-                  ) ;
-    }
+            unless @_ == 5 ;
  
+        filter_add( 
+            sub 
+            {
+                my ($status) ;
+             
+                if (($status = filter_read()) > 0) {
+             
+                    $found = 1
+                        if $found == 0 and /$start/ ;
+             
+                    if ($found) {
+                        s/$from/$to/ ;
+                        filter_del() if /$stop/ ;
+                    }
+             
+                }
+                $status ;
+            } )
+    
+    }
+     
     1 ;
-
-
 
 =head1 AUTHOR
 
@@ -423,7 +464,7 @@ Paul Marquess
 
 =head1 DATE
 
-11th December 1995
+15th December 1995
 
 =cut
 

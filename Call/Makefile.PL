@@ -2,5 +2,5 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
 	NAME      => 'Filter::Util::Call',
-	VERSION   => '1.01',
+	VERSION   => '1.02',
 );

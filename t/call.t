@@ -16,7 +16,7 @@ $module5  = "MyTest5" ;
 $nested   = "nested" ;
 $block   = "block" ;
 
-print "1..20\n" ;
+print "1..24\n" ;
 
 # Test error cases
 ##################
@@ -63,7 +63,7 @@ ok(4, $a =~ /^Not enough arguments for Filter::Util::Call::filter_add/) ;
 #################
 
 
-# a simple filter
+# a simple filter, using a closure
 #################
 
 writeFile("${module}.pm", <<EOM, <<'EOM') ;
@@ -71,17 +71,17 @@ package ${module} ;
  
 EOM
 use Filter::Util::Call ;
-sub import { filter_add(bless []) }
-
-sub filter 
-{ 
-    my ($self) = @_ ;
-    my ($status) ;
-
-    if (($status = filter_read()) > 0) {
-	s/ABC/DEF/g
-    }
-    $status ;
+sub import { 
+    filter_add(
+  	sub {
+ 
+    	    my ($status) ;
+ 
+    	    if (($status = filter_read()) > 0) {
+        	s/ABC/DEF/g
+    	    }
+    	    $status ;
+  	} ) ;
 }
 
 1 ;
@@ -106,6 +106,55 @@ EOM
 $a = `$Perl -I. $Inc $filename  2>&1` ;
 ok(5, ($? >>8) == 0) ;
 ok(6, $a eq <<EOM) ;
+I am $here
+some letters DEF
+Alphabetti Spagetti (DEFDEF)
+EOM
+
+# a simple filter, not using a closure
+#################
+ 
+writeFile("${module}.pm", <<EOM, <<'EOM') ;
+package ${module} ;
+ 
+EOM
+use Filter::Util::Call ;
+sub import { filter_add(bless []) }
+ 
+sub filter
+{
+    my ($self) = @_ ;
+    my ($status) ;
+ 
+    if (($status = filter_read()) > 0) {
+        s/ABC/DEF/g
+    }
+    $status ;
+}
+
+ 
+1 ;
+EOM
+ 
+writeFile($filename, <<EOM, <<'EOM') ;
+ 
+use $module ;
+EOM
+ 
+use Cwd ;
+$here = getcwd ;
+print "I am $here\n" ;
+print "some letters ABC\n" ;
+$y = "ABCDEF" ;
+print <<EOF ;
+Alphabetti Spagetti ($y)
+EOF
+ 
+EOM
+ 
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(7, ($? >>8) == 0) ;
+ok(8, $a eq <<EOM) ;
 I am $here
 some letters DEF
 Alphabetti Spagetti (DEFDEF)
@@ -142,17 +191,17 @@ package ${module3} ;
 use Filter::Util::Call ;
  
 EOM
-sub import { filter_add(bless []) }
+sub import { filter_add(
  
-sub filter
-{
-    my ($self) = @_ ;
-    my ($status) ;
- 
-    if (($status = filter_read()) > 0) {
-        s/Fred/Joe/g
-    }
-    $status ;
+    sub 
+    {
+        my ($status) ;
+     
+        if (($status = filter_read()) > 0) {
+            s/Fred/Joe/g
+        }
+        $status ;
+    } ) ;
 }
  
 1 ;
@@ -219,8 +268,8 @@ EOF
 EOM
 
 $a = `$Perl -I. $Inc $filename  2>&1` ;
-ok(7, ($? >>8) == 0) ;
-ok(8, $a eq <<EOM) ;
+ok(9, ($? >>8) == 0) ;
+ok(10, $a eq <<EOM) ;
 I'm feeling used!
 Fred Joe ABC DEF PQR XYZ
 See you Tomorrow
@@ -230,10 +279,67 @@ some letters DEFPQR
 Fred likes Alphabetti Spagetti (DEFDEFPQR)
 EOM
 
+# using the module context (with a closure)
+###########################################
+ 
+ 
+writeFile("${module2}.pm", <<EOM, <<'EOM') ;
+package ${module2} ;
+use Filter::Util::Call ;
+ 
+EOM
+sub import
+{
+    my ($type) = shift ;
+    my (@strings) = @_ ;
+ 
+ 
+    filter_add (
+ 
+	sub 
+	{
+    	    my ($status) ;
+    	    my ($pattern) ;
+	     
+    	    if (($status = filter_read()) > 0) {
+                foreach $pattern (@strings)
+          	    { s/$pattern/PQR/g }
+    	    }
+	     
+    	    $status ;
+	}
+	)
+ 
+}
+1 ;
+EOM
+ 
+ 
+writeFile($filename, <<EOM, <<'EOM') ;
+ 
+use $module2 qw( XYZ KLM) ;
+use $module2 qw( ABC NMO) ;
+EOM
+ 
+print "some letters ABCXYZ KLM NMO\n" ;
+$y = "ABCDEFXYZKLMNMO" ;
+print <<EOF ;
+Alphabetti Spagetti ($y)
+EOF
+ 
+EOM
+ 
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(11, ($? >>8) == 0) ;
+ok(12, $a eq <<EOM) ;
+some letters PQRPQR PQR PQR
+Alphabetti Spagetti (PQRDEFPQRPQRPQR)
+EOM
+ 
 
 
-# using the module context 
-##########################
+# using the module context (without a closure)
+##############################################
 
 
 writeFile("${module2}.pm", <<EOM, <<'EOM') ;
@@ -283,8 +389,8 @@ EOF
 EOM
  
 $a = `$Perl -I. $Inc $filename  2>&1` ;
-ok(9, ($? >>8) == 0) ;
-ok(10, $a eq <<EOM) ;
+ok(13, ($? >>8) == 0) ;
+ok(14, $a eq <<EOM) ;
 some letters PQRPQR PQR PQR
 Alphabetti Spagetti (PQRDEFPQRPQRPQR)
 EOM
@@ -342,8 +448,8 @@ F
 EOM
  
 $a = `$Perl -I. $Inc $filename  2>&1` ;
-ok(11, ($? >>8) == 0) ;
-ok(12, $a eq <<EOM) ;
+ok(15, ($? >>8) == 0) ;
+ok(16, $a eq <<EOM) ;
 don't cut me in half
 appended
 EOM
@@ -389,8 +495,8 @@ use $block ;
 EOM
  
 $a = `$Perl -I. $Inc $filename  2>&1` ;
-ok(13, ($? >>8) == 0) ;
-ok(14, $a eq <<EOM) ;
+ok(17, ($? >>8) == 0) ;
+ok(18, $a eq <<EOM) ;
 hello mum
 Who wants it?
 me me me 
@@ -437,8 +543,8 @@ print "We are in DIR\n" ;
 EOM
  
 $a = `$Perl -I. $Inc $filename  2>&1` ;
-ok(15, ($? >>8) == 0) ;
-ok(16, $a eq <<EOM) ;
+ok(19, ($? >>8) == 0) ;
+ok(20, $a eq <<EOM) ;
 We are in $here
 EOM
 
@@ -488,8 +594,8 @@ HERE today gone tomorrow\n" ;
 EOM
  
 $a = `$Perl -I. $Inc $filename  2>&1` ;
-ok(17, ($? >>8) == 0) ;
-ok(18, $a eq <<EOM) ;
+ok(21, ($? >>8) == 0) ;
+ok(22, $a eq <<EOM) ;
 
 THERE I am
 I am THERE
@@ -538,8 +644,8 @@ HERE today gone tomorrow\n" ;
 EOM
  
 $a = `$Perl -I. $Inc $filename  2>&1` ;
-ok(19, ($? >>8) == 0) ;
-ok(20, $a eq <<EOM) ;
+ok(23, ($? >>8) == 0) ;
+ok(24, $a eq <<EOM) ;
 
 THERE I am
 I am HERE

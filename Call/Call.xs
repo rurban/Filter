@@ -2,8 +2,8 @@
  * Filename : Call.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 11th December 1995
- * Version  : 1.01
+ * Date     : 15th December 1995
+ * Version  : 1.02
  *
  */
 
@@ -17,6 +17,7 @@
 #define PERL_OBJECT(s)		IoTOP_GV(s)
 #define FILTER_ACTIVE(s)	IoLINES(s)
 #define BUF_OFFSET(sv)  	IoPAGE_LEN(sv)
+#define CODE_REF(sv)  		IoFLAGS(sv)
 
 #define SET_LEN(sv,len) \
         do { SvPVX(sv)[len] = '\0'; SvCUR_set(sv, len); } while (0)
@@ -109,10 +110,17 @@ filter_call(idx, buf_sv, maxlen)
 	    GvSV(defgv) = my_sv ;	/* make $_ use our buffer */
 
     	    PUSHMARK(sp) ;
-            XPUSHs(PERL_OBJECT(my_sv)) ;  
-    	    PUTBACK ;
 
-    	    count = perl_call_method("filter", G_SCALAR);
+	    if (CODE_REF(my_sv)) {
+    	        count = perl_call_sv(PERL_OBJECT(my_sv), G_SCALAR);
+	    }
+	    else {
+                XPUSHs(PERL_OBJECT(my_sv)) ;  
+	
+    	        PUTBACK ;
+
+    	        count = perl_call_method("filter", G_SCALAR);
+	    }
 
     	    SPAGAIN ;
 
@@ -180,9 +188,10 @@ filter_read(size=0)
 
 
 void
-real_import(object, perlmodule)
+real_import(object, perlmodule, coderef)
     SV *	object
     char *	perlmodule 
+    int		coderef
     PPCODE:
     {
         SV * sv = newSV(1) ;
@@ -194,6 +203,7 @@ real_import(object, perlmodule)
 	PERL_OBJECT(sv) = newSVsv(object) ;
 	FILTER_ACTIVE(sv) = TRUE ;
         BUF_OFFSET(sv) = 0 ;
+	CODE_REF(sv)   = coderef ;
 
         SvCUR_set(sv, 0) ;
 

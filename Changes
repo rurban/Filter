@@ -72,3 +72,9 @@
     changed.
 
 
+1.08 Friday 15th December 1995
+----
+
+  * Fixed a bug in Exec.xs - wait was being called without a parameter.
+
+  * Added a closure option to Call

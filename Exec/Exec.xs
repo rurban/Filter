@@ -103,7 +103,7 @@ int maxlen ;
              else {
                 /* eof, close write end of pipe */
                 close(pipe_out) ; 
-		wait() ; 
+		wait(NULL) ; 
                 if (fdebug)
                     warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
 				idx, errno,
