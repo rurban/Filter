@@ -4,7 +4,7 @@
  
                                   29th Dec 1997
  
-             Copyright (c) 1995,1996 Paul Marquess. All rights reserved.
+      Copyright (c) 1995,1996,1997,1998 Paul Marquess. All rights reserved.
          This program is free software; you can redistribute it and/or
                 modify it under the same terms as Perl itself.
  
@@ -24,6 +24,9 @@ Before you can build the Source Filters you need to have the following
 installed on your system:
 
     * Perl 5.002 or better
+
+If your Perl is less than version 5.004_55, the "order" test harness
+will be skipped.
 
 
 BUILDING THE MODULES

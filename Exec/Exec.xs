@@ -39,6 +39,9 @@ static int pipe_pid = 0;
 typedef struct {
     SV *	sv;
     int		idx;
+#ifdef USE_THREADS
+    struct perl_thread *	parent;
+#endif
 } thrarg;
 
 static void
@@ -53,6 +56,10 @@ void *args ;
     int rawread_eof = 0;
     int r,w,len;
     free(args);
+#ifdef USE_THREADS
+    /* use the parent's perl thread context */
+    SET_THR(targ->parent);
+#endif
     for(;;)
     {       
 
@@ -129,7 +136,10 @@ int maxlen ;
     if (!write_started) {
 	thrarg *targ = malloc(sizeof(thrarg));
 	targ->sv = sv; targ->idx = idx;
-	/* thread handle is close when pipe_write() returns */
+#ifdef USE_THREADS
+	targ->parent = THR;
+#endif
+	/* thread handle is closed when pipe_write() returns */
 	_beginthread(pipe_write,0,(void *)targ);
 	write_started = 1;
     }

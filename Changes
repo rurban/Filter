@@ -124,3 +124,9 @@
 
   * patch from Gurusamy Sarathy to get the filters to build and pass
     all tests on NT.
+
+1.14 Thursday 1st January 1998
+----
+
+  * patch from Gurusamy Sarathy to allow the filters to build when
+    threading is enabled.

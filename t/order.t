@@ -4,6 +4,12 @@
 # in the correct order we should get a "filter_del can only delete in
 # reverse order" error
 
+# skip this set of tests is running on anything less than 5.004_55
+if ($] < 5.004_55) {
+    print "1..0\n";
+    exit 0;
+}
+
 require "./util" ;
 
 $Inc = $Inc ; # keep -w happy
@@ -51,6 +57,7 @@ $a = `$Perl $Inc $file 2>&1` ;
 print "1..3\n" ;
 
 ok(1, ($? >> 8) == 0) ;
+#print "|$a|\n";
 ok(2, $a eq <<EOM) ;
 DEF DEF
 EOM

@@ -11,6 +11,11 @@
 #include "perl.h"
 #include "XSUB.h"
 
+/* defgv must be accessed differently under threaded perl */
+/* DEFSV et al are in 5.004_56 */
+#ifndef DEFSV
+#define DEFSV		GvSV(defgv)
+#endif
 
 /* Internal defines */
 #define PERL_MODULE(s)		IoBOTTOM_NAME(s)
@@ -106,9 +111,9 @@ filter_call(idx, buf_sv, maxlen)
 	    SAVEINT(current_idx) ; 	/* save current idx */
 	    current_idx = idx ;
 
-	    SAVESPTR(GvSV(defgv)) ;	/* save $_ */
+	    SAVESPTR(DEFSV) ;	/* save $_ */
 	    /* make $_ use our buffer */
-	    GvSV(defgv) = sv_2mortal(newSVpv("", 0)) ; 
+	    DEFSV = sv_2mortal(newSVpv("", 0)) ; 
 
     	    PUSHMARK(sp) ;
 
@@ -133,9 +138,9 @@ filter_call(idx, buf_sv, maxlen)
 
 	    if (fdebug)
 	        warn("status = %d, length op buf = %d [%s]\n",
-		     n, SvCUR(GvSV(defgv)), SvPVX(GvSV(defgv)) ) ;
-	    if (SvCUR(GvSV(defgv)))
-	        sv_setpvn(my_sv, SvPVX(GvSV(defgv)), SvCUR(GvSV(defgv))) ; 
+		     n, SvCUR(DEFSV), SvPVX(DEFSV) ) ;
+	    if (SvCUR(DEFSV))
+	        sv_setpvn(my_sv, SvPVX(DEFSV), SvCUR(DEFSV)) ; 
 
     	    PUTBACK ;
     	    FREETMPS ;
@@ -181,7 +186,7 @@ filter_read(size=0)
 	int	size 
 	CODE:
 	{
-	    SV * buffer = GvSV(defgv) ;
+	    SV * buffer = DEFSV ;
 
 	    RETVAL = FILTER_READ(IDX + 1, buffer, size) ;
 	}
