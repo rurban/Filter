@@ -187,10 +187,18 @@
 1.22 Wednesday 21st February 20001
 ----
 
-  * Added Michael G Schwern's example of a practical use ot Filter::cpp
-    to the pod.
+  * Added Michael G Schwern's example of a practical use of Filter::cpp
+    into the pod.
 
   * Filter::cpp assumed that cpp.exe is always available on MSWin32. Logic
     has been added to check for the existence of cpp.exe.
 
   * Added a reference to Damian Conway's excellent Filter::Simple module.
+
+  * Merged Core patch 9176
+
+1.23 Monday 23rd April 2001
+----
+
+  * Modified Makefile.PL to only enable the warnings pragma if using perl
+    5.6.1 or better.    

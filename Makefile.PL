@@ -42,20 +42,15 @@ my @files = qw( util
              t/tee.t         
            );
              
-# See if the warnings pragma is available
-eval 'use warnings;';
-if ($@) {
-    # not there, so write a dummy warnings.pm
-    oldWarnings(@files) ;
-} else {
-    # is there,
-    newWarnings(@files) ;
-}      
+if ($] < 5.006001)
+ { oldWarnings(@files) }
+else
+ { newWarnings(@files) }     
              
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.22',
+	VERSION   => '1.23',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz'},
 	($] >= 5.005
