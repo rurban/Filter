@@ -2,8 +2,8 @@
  * Filename : decrypt.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 19th December 1995
- * Version  : 1.02
+ * Date     : 17th March 1999
+ * Version  : 1.03
  *
  */
 
@@ -13,6 +13,21 @@
 
 #ifdef FDEBUG
 static int fdebug = 0;
+#endif
+
+#ifndef PERL_VERSION
+#include "patchlevel.h"
+#define PERL_REVISION   5
+#define PERL_VERSION    PATCHLEVEL
+#define PERL_SUBVERSION SUBVERSION
+#endif
+
+#if PERL_REVISION == 5 && (PERL_VERSION < 4 || (PERL_VERSION == 4 && PERL_SUBVERSION <= 75 ))
+
+#    define PL_rsfp_filters	rsfp_filters
+#    define PL_perldb		perldb
+#    define PL_curcop		curcop
+
 #endif
 
 /* constants specific to the encryption format */
@@ -147,7 +162,7 @@ filter_decrypt(idx, buf_sv, maxlen)
 
 	/* Mild paranoia mode - make sure that no extra filters have 	*/
 	/* been applied on the same line as the use Filter::decrypt	*/
-        if (AvFILL(rsfp_filters) > FILTER_COUNT(my_sv) )
+        if (AvFILL(PL_rsfp_filters) > FILTER_COUNT(my_sv) )
 	    croak("too many filters") ; 
 
 	/* As this is the first time through, so deal with any 		*/
@@ -292,7 +307,7 @@ import(module)
         SV * sv = newSV(BLOCKSIZE) ;
 
 	/* make sure the Perl debugger isn't enabled */
-	if( perldb )
+	if( PL_perldb )
 	    croak("debugger disabled") ;
 
         filter_add(filter_decrypt, sv) ;
@@ -306,9 +321,9 @@ import(module)
 
 
         /* remember how many filters are enabled */
-        FILTER_COUNT(sv) = AvFILL(rsfp_filters) ;
+        FILTER_COUNT(sv) = AvFILL(PL_rsfp_filters) ;
 	/* and the line number */
-	FILTER_LINE_NO(sv) = curcop->cop_line ;
+	FILTER_LINE_NO(sv) = PL_curcop->cop_line ;
 
     }
 

@@ -2,8 +2,8 @@
  * Filename : exec.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 11th December 1995
- * Version  : 1.02
+ * Date     : 17th March 1999
+ * Version  : 1.03
  *
  */
 
@@ -14,6 +14,23 @@
 #include <fcntl.h>
 
 static int fdebug = 0 ;
+
+#ifndef PERL_VERSION
+#include "patchlevel.h"
+#define PERL_REVISION	5
+#define PERL_VERSION	PATCHLEVEL
+#define PERL_SUBVERSION	SUBVERSION
+#endif
+
+#if PERL_REVISION == 5 && (PERL_VERSION < 4 || (PERL_VERSION == 4 && PERL_SUBVERSION <= 75 ))
+
+#    define PL_sv_undef		sv_undef
+#    define PL_na		na
+#    define PL_curcop		curcop
+#    define PL_compiling	compiling
+#    define PL_rsfp		rsfp
+
+#endif 
 
 
 #define PIPE_IN(sv)	IoLINES(sv)
@@ -456,6 +473,7 @@ filter_exec(idx, buf_sv, maxlen)
         warn ("filter_sh(idx=%d, SvCUR(buf_sv)=%d, maxlen=%d\n", 
 		idx, SvCUR(buf_sv), maxlen) ;
     while (1) {
+	STRLEN n_a;
 
         /* If there was a partial line/block left from last time
            copy it now
@@ -526,7 +544,7 @@ filter_exec(idx, buf_sv, maxlen)
  
         if (fdebug)
             warn("  filter_sh(%d): pipe_read returned %d %d: '%s'",
-                idx, n, SvCUR(buffer), SvPV(buffer,na));
+                idx, n, SvCUR(buffer), SvPV(buffer,n_a));
  
     }
 
@@ -551,6 +569,7 @@ filter_add(module, command, ...)
     CODE:
       	int i ;
       	int pipe_in, pipe_out ;
+	STRLEN n_a ;
 	/* SV * sv = newSVpv("", 0) ; */
 	SV * sv = newSV(1) ;
  
@@ -558,13 +577,13 @@ filter_add(module, command, ...)
           warn("Filter::exec::import\n") ;
       for (i = 1 ; i < items ; ++i)
       {
-          command[i-1] = SvPV(ST(i), na) ;
+          command[i-1] = SvPV(ST(i), n_a) ;
       	  if (fdebug)
 	      warn("    %s\n", command[i-1]) ;
       }
       command[i-1] = NULL ;
       filter_add(filter_exec, sv);
-      spawnCommand(rsfp, command[0], command, &pipe_in, &pipe_out) ;
+      spawnCommand(PL_rsfp, command[0], command, &pipe_in, &pipe_out) ;
       safefree((char*)command) ;
 
       PIPE_IN(sv)   = pipe_in ;

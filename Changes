@@ -139,3 +139,8 @@
   * Applied patch from Gurusamy Sarathy which prevents Exec from coredump
     when perl |is run with PERL_DESTRUCT_LEVEL.
 
+1.16 wednesday 17th March 1999
+----
+
+  * Upgraded to use the new PL_* symbols. Means the module can build with 
+    Perl5.005_5*.

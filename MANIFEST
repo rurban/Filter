@@ -9,6 +9,7 @@ Exec/Makefile.PL
 Exec/Exec.pm
 Exec/Exec.xs
 decrypt/Makefile.PL
+decrypt/decr
 decrypt/decrypt.pm
 decrypt/decrypt.xs
 decrypt/encrypt
