@@ -15,7 +15,12 @@ sub import
 
     #require "Filter/exec.pm" ;
     #Filter::exec::import ($self, 'sh', '-c', "@args") ; 
-    Filter::Util::Exec::filter_add ($self, 'sh', '-c', "@args") ; 
+    if ($^O eq 'MSWin32') {
+        Filter::Util::Exec::filter_add ($self, 'cmd', '/c', "@args") ; 
+    }
+    else {
+        Filter::Util::Exec::filter_add ($self, 'sh', '-c', "@args") ; 
+    }
 }
 
 1 ;

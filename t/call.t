@@ -1,4 +1,3 @@
-
 require "util" ;
 use Cwd ;
 $here = getcwd ;
@@ -35,7 +34,7 @@ sub import { filter_add(bless []) }
 EOM
  
 $a = `$Perl -I. $Inc -e "use ${module} ;"  2>&1` ;
-ok(1, ($? >>8) != 0) ;
+ok(1, (($? >>8) != 0 or ($^O eq 'MSWin32' && $? != 0))) ;
 ok(2, $a =~ /^Can't locate object method "filter" via package "MyTest"/) ;
  
 # no reference parameter in filter_add
@@ -52,7 +51,7 @@ sub import { filter_add() }
 EOM
  
 $a = `$Perl -I. $Inc -e "use ${module} ;"  2>&1` ;
-ok(3, ($? >>8) != 0) ;
+ok(3, (($? >>8) != 0 or ($^O eq 'MSWin32' && $? != 0))) ;
 #ok(4, $a =~ /^usage: filter_add\(ref\) at ${module}.pm/) ;
 ok(4, $a =~ /^Not enough arguments for Filter::Util::Call::filter_add/) ;
  

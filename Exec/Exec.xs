@@ -31,6 +31,133 @@ static int fdebug = 0 ;
  
 #define BLOCKSIZE       100
 
+#ifdef WIN32
+
+static int write_started = 0;
+static int pipe_pid = 0;
+
+typedef struct {
+    SV *	sv;
+    int		idx;
+} thrarg;
+
+static void
+pipe_write(args)
+void *args ;
+{
+    thrarg *targ = (thrarg *)args;
+    SV *sv = targ->sv;
+    int idx = targ->idx;
+    int    pipe_in  = PIPE_IN(sv) ;
+    int    pipe_out = PIPE_OUT(sv) ;
+    int rawread_eof = 0;
+    int r,w,len;
+    free(args);
+    for(;;)
+    {       
+
+        /* get some raw data to stuff down the pipe */
+	/* But only when BUF_SV is empty */
+        if (!rawread_eof && BUF_NEXT(sv) >= BUF_END(sv)) {       
+	    /* empty BUF_SV */
+	    SvCUR_set((SV*)BUF_SV(sv), 0) ;
+            if ((len = FILTER_READ(idx+1, (SV*) BUF_SV(sv), 0)) > 0) {
+		BUF_NEXT(sv) = BUF_START(sv);
+                if (fdebug)
+                    warn ("*pipe_read(%d) Filt Rd returned %d %d [%*s]\n", 
+			idx, len, BUF_SIZE(sv), BUF_SIZE(sv), BUF_START(sv)) ;
+	     }
+             else {
+                /* eof, close write end of pipe after writing to it */
+		 rawread_eof = 1;
+	     }
+	}
+ 
+ 	/* write down the pipe */
+        if ((w = BUF_END(sv) - BUF_NEXT(sv)) > 0) {
+	    errno = 0;
+            if ((w = write(pipe_out, BUF_NEXT(sv), w)) > 0) {
+		BUF_NEXT(sv) += w;
+		if (fdebug)
+		    warn ("*pipe_read(%d) wrote %d bytes to pipe\n", idx, w) ;
+	    }
+            else {
+                if (fdebug)
+                   warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
+			idx, errno, Strerror(errno)) ;
+                close(pipe_out) ;
+		CloseHandle((HANDLE)pipe_pid);
+		write_started = 0;
+		return;
+	    }
+	}
+	else if (rawread_eof) {
+	    close(pipe_out);
+	    CloseHandle((HANDLE)pipe_pid);
+	    write_started = 0;
+	    return;
+	}
+    }
+}
+
+static int
+pipe_read(sv, idx, maxlen)
+SV  * sv ;
+int idx ;
+int maxlen ;
+{
+    int    pipe_in  = PIPE_IN(sv) ;
+    int    pipe_out = PIPE_OUT(sv) ;
+
+    int r ;
+    int w ;
+    int len ;
+
+    if (fdebug)
+        warn ("*PIPE_READ(sv=%d, SvCUR(sv)=%d, idx=%d, maxlen=%d\n",
+		sv, SvCUR(sv), idx, maxlen) ;
+
+    if (!maxlen)
+	maxlen = 1024 ;
+
+    /* just make sure the SV is big enough */
+    SvGROW(sv, SvCUR(sv) + maxlen) ;
+
+    if ( !BUF_NEXT(sv) )
+        BUF_NEXT(sv) = BUF_START(sv);
+
+    if (!write_started) {
+	thrarg *targ = malloc(sizeof(thrarg));
+	targ->sv = sv; targ->idx = idx;
+	/* thread handle is close when pipe_write() returns */
+	_beginthread(pipe_write,0,(void *)targ);
+	write_started = 1;
+    }
+
+    /* try to get data from filter, if any */
+    errno = 0;
+    len = SvCUR(sv) ;
+    if ((r = read(pipe_in, SvPVX(sv) + len, maxlen)) > 0)
+    {
+	if (fdebug)
+	    warn ("*pipe_read(%d) from pipe returned %d [%*s]\n", 
+			idx, r, r, SvPVX(sv) + len) ;
+	SvCUR_set(sv, r + len) ;
+	return SvCUR(sv);
+    }
+
+    if (fdebug)
+	warn ("*pipe_read(%d) returned %d, errno = %d %s\n", 
+		idx, r, errno, Strerror(errno)) ;
+
+    /* close the read pipe on error/eof */
+    if (fdebug)
+	warn("*pipe_read(%d) -- EOF <#########\n", idx) ;
+    close (pipe_in) ; 
+    return 0;
+}
+
+#else /* !WIN32 */
 
 
 static int
@@ -156,7 +283,7 @@ int  f;
                 RETVAL, errno) ;
 }
  
-
+#endif
 
 
 #define READER	0
@@ -170,6 +297,71 @@ char * parameters[] ;
 int  * p0 ;
 int  * p1 ;
 {
+#ifdef WIN32
+
+    int p[2], c[2];
+    SV * sv ;
+    int oldstdout, oldstdin;
+
+    /* create the pipes */
+    if (win32_pipe(p,512,O_TEXT|O_NOINHERIT) == -1
+	|| win32_pipe(c,512,O_BINARY|O_NOINHERIT) == -1) {
+	fclose( fil );
+	croak("Can't get pipe for %s", command);
+    }
+
+    /* duplicate stdout and stdin */
+    oldstdout = dup(fileno(stdout));
+    if (oldstdout == -1) {
+	fclose( fil );
+	croak("Can't dup stdout for %s", command);
+    }
+    oldstdin  = dup(fileno(stdin));
+    if (oldstdin == -1) {
+	fclose( fil );
+	croak("Can't dup stdin for %s", command);
+    }
+
+    /* duplicate inheritable ends as std handles for the child */
+    if (dup2(p[WRITER], fileno(stdout))) {
+	fclose( fil );
+	croak("Can't attach pipe to stdout for %s", command);
+    }
+    if (dup2(c[READER], fileno(stdin))) {
+	fclose( fil );
+	croak("Can't attach pipe to stdin for %s", command);
+    }
+
+    /* close original inheritable ends in parent */
+    close(p[WRITER]);
+    close(c[READER]);
+
+    /* spawn child process (which inherits the redirected std handles) */
+    pipe_pid = spawnvp(P_NOWAIT, command, parameters);
+    if (pipe_pid == -1) {
+	fclose( fil );
+	croak("Can't spawn %s", command);
+    }
+
+    /* restore std handles */
+    if (dup2(oldstdout, fileno(stdout))) {
+	fclose( fil );
+	croak("Can't restore stdout for %s", command);
+    }
+    if (dup2(oldstdin, fileno(stdin))) {
+	fclose( fil );
+	croak("Can't restore stdin for %s", command);
+    }
+
+    /* close saved handles */
+    close(oldstdout);
+    close(oldstdin);
+
+    *p0 = p[READER] ;
+    *p1 = c[WRITER] ;
+
+#else /* !WIN32 */
+
     int p[2], c[2];
     SV * sv ;
     int	pipepid;
@@ -233,6 +425,7 @@ int  * p1 ;
 
     *p0 = p[READER] ;
     *p1 = c[WRITER] ;
+#endif
 }
 
 

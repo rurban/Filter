@@ -154,7 +154,7 @@ filter_call(idx, buf_sv, maxlen)
 
 	    /* PERL_MODULE(my_sv) ; */
 	    /* PERL_OBJECT(my_sv) ; */
-	    filter_del(filter_call);  
+	    filter_del(filter_call); 
 
 	    /* If error, return the code */
 	    if (n < 0)

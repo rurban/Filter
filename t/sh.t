@@ -3,11 +3,24 @@ require "util" ;
 $Inc = $Inc ; # keep -w happy
 $Perl = $Perl ;
 
+if ($^O eq 'MSWin32') {
+$script = <<'EOF' ;
+
+use Filter::sh q(tr [A-E][I-M] [a-e][i-m] 2>nul) ;
+use Filter::sh q(tr [N-Z] [n-z] 2>nul) ;
+
+EOF
+}
+else {
 $script = <<'EOF' ;
 
 use Filter::sh q(tr '[A-E][I-M]' '[a-e][i-m]') ;
 use Filter::sh q(tr '[N-Z]' '[n-z]') ;
 
+EOF
+}
+
+$script .= <<'EOF' ;
 
 $A = 2 ;
 PRINT "A = $A\N" ;

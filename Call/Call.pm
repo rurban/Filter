@@ -285,7 +285,7 @@ implemented both as I<method filters> and as I<closure filters>.
 
 Below is a I<method filter> which is hard-wired to replace all
 occurrences of the string C<"Joe"> to C<"Jim">. Not particularly
-useful, but it is the first example and I wanted to keep it simple.
+Useful, but it is the first example and I wanted to keep it simple.
 
     package Joe2Jim ;
     

@@ -116,3 +116,11 @@
 
   * Fix Call interface to work with 5.003_94
 
+
+1.13 Monday 29th December 1997
+----
+
+  * added the order test harness.
+
+  * patch from Gurusamy Sarathy to get the filters to build and pass
+    all tests on NT.

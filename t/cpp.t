@@ -37,6 +37,7 @@ $a = `$Perl $Inc $cpp_script 2>&1` ;
 
 print "1..2\n" ;
 ok(1, ($? >>8) == 0) ;
+#print "|$a| vs |$expected_output|\n";
 ok(2, $a eq $expected_output) ;
 
 unlink $cpp_script ;

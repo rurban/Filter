@@ -1,8 +1,8 @@
                                  Source Filters
  
-                                  Version 1.09
+                                  Version 1.13
  
-                               22nd April 1996
+                                  29th Dec 1997
  
              Copyright (c) 1995,1996 Paul Marquess. All rights reserved.
          This program is free software; you can redistribute it and/or
@@ -41,11 +41,14 @@ The modules can now be built using this sequence of commands:
 The filters have been successfully built and tested on the following
 systems (at least):
 
-	SunOS 4.1.3 (Sun C compiler)
+	SunOS 4.1.3 (Sun C compiler & gcc 2.7.2.3)
 	Solaris 2.3 (Sun C Compiler)
 	irix 5.3	
 	irix 6.x	
+	Windows NT 4.0 (Visual C++ 5.0 and Borland C++ 5.02)
 
+GNU tr and GNU cpp must be installed somewhere on the path for the
+testsuite to pass successfully on Windows NT.
 
 INSTALLATION
 ------------

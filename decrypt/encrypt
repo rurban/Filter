@@ -60,7 +60,7 @@ foreach $file (@ARGV)
     rename ("${file}.pe", $file) 
 	or die "Could not rename $file.pe to $file: $!\n" ;
 
-    chmod $mode, $file ;
+    chmod $mode, $file unless $^O eq 'MSWin32' ;
 
     print "encrypted $file\n" ;
 }

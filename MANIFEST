@@ -35,6 +35,7 @@ t/call.t
 t/cpp.t
 t/decrypt.t
 t/exec.t
+t/order.t
 t/sh.t
 t/tee.t
 tee/Makefile.PL

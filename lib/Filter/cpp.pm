@@ -12,13 +12,19 @@ sub import
 { 
     my($self, @args) = @_ ;
 
-    croak ("Cannot find cpp")
-	if $Config{'cppstdin'} eq '' ;
-
     #require "Filter/exec.pm" ;
-    
-    Filter::Util::Exec::filter_add ($self, 'sh', '-c', 
+
+    if ($^O eq 'MSWin32') {
+        # assume GNU cpp is installed
+        Filter::Util::Exec::filter_add ($self, 'cmd', '/c', 
+		"cpp.exe 2>nul") ;
+    }
+    else {
+        croak ("Cannot find cpp")
+	    if $Config{'cppstdin'} eq '' ;
+        Filter::Util::Exec::filter_add ($self, 'sh', '-c', 
 		"$Config{'cppstdin'} $Config{'cppminus'} 2>/dev/null") ;
+    }
 }
 
 1 ;

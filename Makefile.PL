@@ -4,7 +4,7 @@ require 5.002 ;
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.12',
+	VERSION   => '1.13',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz'},
 	) ;
