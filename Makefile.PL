@@ -50,9 +50,10 @@ else
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.25',
+	VERSION   => '1.26',
 	'linkext'   => {LINKTYPE => ''},
-	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz'},
+	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz',
+			DIST_DEFAULT => 'MyDoubleCheck tardist'},
 	($] >= 5.005
 	    ? (ABSTRACT	=> 'Source Filters',
 	       AUTHOR  	=> 'Paul Marquess <Paul.Marquess@btinternet.com>')
@@ -60,6 +61,20 @@ WriteMakefile(
 	),
 	) ;
 
+
+sub MY::postamble {
+	'
+
+MyDoubleCheck:	
+	@echo Checking for $$^W in files
+	@perl -ne \'						\
+	    exit 1 if /^\s*local\s*\(\s*\$$\^W\s*\)/;		\
+         \' ' . " @files || " . '				\
+	(echo found unexpected $$^W ; exit 1)
+	@echo All is ok.
+
+' ;
+}
 
 sub oldWarnings
 {

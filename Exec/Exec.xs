@@ -3,40 +3,35 @@
  * 
  * Author   : Paul Marquess 
  * Date     : 26th March 2000
- * Version  : 1.04
+ * Version  : 1.05
  *
  */
 
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include "../Call/ppport.h"
 
 #include <fcntl.h>
 
-static int fdebug = 0 ;
-
-#ifndef PERL_VERSION
-#    include "patchlevel.h"
-#    define PERL_REVISION	5
-#    define PERL_VERSION	PATCHLEVEL
-#    define PERL_SUBVERSION	SUBVERSION
+/* Global Data */
+ 
+#define MY_CXT_KEY "Filter::Util::Exec::_guts" XS_VERSION
+ 
+typedef struct {
+    int x_fdebug ;
+#ifdef WIN32
+    int x_write_started;
+    int x_pipe_pid;
 #endif
-
-#if PERL_REVISION == 5 && (PERL_VERSION < 4 || (PERL_VERSION == 4 && PERL_SUBVERSION <= 75 ))
-
-#    define PL_sv_undef		sv_undef
-#    define PL_na		na
-#    define PL_curcop		curcop
-#    define PL_compiling	compiling
-#    define PL_rsfp		rsfp
-
-#endif 
-
-#ifndef pTHX
-#    define pTHX
-#    define pTHX_
-#    define aTHX
-#    define aTHX_
+} my_cxt_t;
+ 
+START_MY_CXT
+ 
+#define fdebug          (MY_CXT.x_fdebug)
+#ifdef WIN32
+#define write_started	(MY_CXT.x_write_started)    
+#define pipe_pid	(MY_CXT.x_pipe_pid)    
 #endif
 
 #define PIPE_IN(sv)	IoLINES(sv)
@@ -54,10 +49,8 @@ static int fdebug = 0 ;
  
 #define BLOCKSIZE       100
 
-#ifdef WIN32
 
-static int write_started = 0;
-static int pipe_pid = 0;
+#ifdef WIN32
 
 typedef struct {
     SV *	sv;
@@ -73,6 +66,7 @@ typedef struct {
 static void
 pipe_write(void *args)
 {
+    dMY_CXT;
     thrarg *targ = (thrarg *)args;
     SV *sv = targ->sv;
     int idx = targ->idx;
@@ -138,6 +132,7 @@ pipe_write(void *args)
 static int
 pipe_read(SV *sv, int idx, int maxlen)
 {
+    dMY_CXT;
     int    pipe_in  = PIPE_IN(sv) ;
     int    pipe_out = PIPE_OUT(sv) ;
 
@@ -201,6 +196,7 @@ pipe_read(SV *sv, int idx, int maxlen)
 static int
 pipe_read(SV *sv, int idx, int maxlen)
 {
+    dMY_CXT;
     int    pipe_in  = PIPE_IN(sv) ;
     int    pipe_out = PIPE_OUT(sv) ;
 
@@ -326,6 +322,7 @@ make_nonblock(int f)
 static void
 spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)	
 {
+    dMY_CXT;
 #ifdef WIN32
 
 #if defined(PERL_OBJECT)
@@ -465,6 +462,7 @@ spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)
 static I32
 filter_exec(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
+    dMY_CXT;
     I32 len;
     SV   *buffer = FILTER_DATA(idx);
     char * out_ptr = SvPVX(buffer) ;
@@ -560,8 +558,12 @@ REQUIRE:	1.924
 PROTOTYPES:	ENABLE
 
 BOOT:
+  {
+    MY_CXT_INIT;
+    fdebug = 0;
     /* temporary hack to control debugging in toke.c */
     filter_add(NULL, (fdebug) ? (SV*)"1" : (SV*)"0"); 
+  }
 
 
 void
@@ -570,6 +572,7 @@ filter_add(module, command, ...)
     char **	command = (char**) safemalloc(items * sizeof(char*)) ;
     PROTOTYPE:	$@
     CODE:
+	dMY_CXT;
       	int i ;
       	int pipe_in, pipe_out ;
 	STRLEN n_a ;

@@ -220,3 +220,10 @@
 ----
 
   * Fixed minor typo in Makefile.PL
+
+1.26 
+----
+
+  * Call & Exec now use the CXT* macros
+
+  * moved all backward compatability code into ppport.h

@@ -10,32 +10,10 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
+#include "../Call/ppport.h"
 
 #ifdef FDEBUG
 static int fdebug = 0;
-#endif
-
-#ifndef PERL_VERSION
-#    include "patchlevel.h"
-#    define PERL_REVISION   5
-#    define PERL_VERSION    PATCHLEVEL
-#    define PERL_SUBVERSION SUBVERSION
-#endif
-
-#if PERL_REVISION == 5 && (PERL_VERSION < 4 || (PERL_VERSION == 4 && PERL_SUBVERSION <= 75 ))
-
-#    define PL_rsfp_filters	rsfp_filters
-#    define PL_perldb		perldb
-#    define PL_curcop		curcop
-#    define PL_na		na
-
-#endif
-
-#ifndef pTHX
-#    define pTHX
-#    define pTHX_
-#    define aTHX
-#    define aTHX_
 #endif
 
 /* constants specific to the encryption format */

@@ -10,13 +10,7 @@
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
-
-#ifndef pTHX
-#    define pTHX
-#    define pTHX_
-#    define aTHX
-#    define aTHX_
-#endif
+#include "../Call/ppport.h"
 
 static I32
 filter_tee(pTHX_ int idx, SV *buf_sv, int maxlen)
