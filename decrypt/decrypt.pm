@@ -1,7 +1,10 @@
 package Filter::decrypt ;
 
+require 5.002 ;
 require DynaLoader;
 @ISA = qw(DynaLoader);
+use vars qw($VERSION);
+$VERSION = "1.02" ;
 
 bootstrap Filter::decrypt ;
 1;
@@ -83,6 +86,6 @@ Paul Marquess
 
 =head1 DATE
 
-20th November 1995
+19th December 1995
 
 =cut

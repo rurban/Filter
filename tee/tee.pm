@@ -1,8 +1,10 @@
 package Filter::tee ;
 
+require 5.002;
 require DynaLoader;
 @ISA = qw(DynaLoader);
-$VERSION = 1.02 ;
+use vars qw($VERSION);
+$VERSION = "1.02" ;
 
 bootstrap Filter::tee ;
 

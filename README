@@ -1,10 +1,10 @@
                                  Source Filters
  
-                                  Version 1.08
+                                  Version 1.09
  
-                               15th December 1995
+                               22nd April 1996
  
-             Copyright (c) 1995 Paul Marquess. All rights reserved.
+             Copyright (c) 1995,1996 Paul Marquess. All rights reserved.
          This program is free software; you can redistribute it and/or
                 modify it under the same terms as Perl itself.
  
@@ -23,7 +23,7 @@ PREREQUISITES
 Before you can build the Source Filters you need to have the following
 installed on your system:
 
-    * Perl 5.002b1 patch f or better
+    * Perl 5.002 or better
 
 
 BUILDING THE MODULES
@@ -44,6 +44,7 @@ systems (at least):
 	SunOS 4.1.3 (Sun C compiler)
 	Solaris 2.3 (Sun C Compiler)
 	irix 5.3	
+	irix 6.x	
 
 
 INSTALLATION

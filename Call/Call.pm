@@ -3,14 +3,13 @@ package Filter::Util::Call ;
 require 5.002 ;
 require DynaLoader;
 require Exporter;
+use Carp ;
+use strict;
+use vars qw($VERSION @ISA @EXPORT) ;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
-$VERSION = 1.02 ;
-
-use Carp ;
-use strict ;
-#$^W = 1 ;
+$VERSION = "1.02" ;
 
 sub filter_read_exact($)
 {
@@ -55,7 +54,7 @@ __END__
 
 =head1 NAME
 
-Filter::Util::Call - Perl Source Filter
+Filter::Util::Call - Perl Source Filter Utility Module
 
 =head1 DESCRIPTION
 
@@ -121,10 +120,11 @@ Filters>, albeit fairly useless ones. All they does is filter the
 source stream without modifying it at all.
 
 As you can see both modules have a broadly similar structure. They both
-make use of C<Filter::Util::Call> and both have an C<import> method.
-The difference between them is that the I<method filter> requires a
-I<filter> method, whereas the I<closure filter> gets the equivalent of a
-I<filter> method with the anonymous sub passed to I<filter_add>.
+make use of the C<Filter::Util::Call> module and both have an C<import>
+method. The difference between them is that the I<method filter>
+requires a I<filter> method, whereas the I<closure filter> gets the
+equivalent of a I<filter> method with the anonymous sub passed to
+I<filter_add>.
 
 To make proper use of the I<closure filter> shown above you need to
 have a good understanding of the concept of a I<closure>. See
@@ -175,8 +175,9 @@ dictate which of the two filter types will be used.
 If a CODE reference is used then a I<closure filter> will be assumed.
 
 If a CODE reference is not used, a I<method filter> will be assumed.
-The reference can be used to store context information. The reference
-will be I<blessed> into the package by C<filter_add>.
+In a I<method filter>, the reference can be used to store context
+information. The reference will be I<blessed> into the package by
+C<filter_add>.
 
 See the filters at the end of this documents for examples of using
 context information using both I<method filters> and I<closure
@@ -198,7 +199,6 @@ C<$self>, is the same reference that was passed to C<filter_add>
 blessed into the filter's package. See the example filters later on for
 details of using C<$self>.
 
-
 Here is a list of the common features of the anonymous sub and the
 C<filter()> method.
 
@@ -209,9 +209,9 @@ C<filter()> method.
 Although C<$_> doesn't actually appear explicitly in the sample filters
 above, it is implicitly used in a number of places.
 
-Firstly, when C<filter> or the anonymous sub are called, a local copy
-of C<$_> will be created. It will always contain the empty string at
-this point.
+Firstly, when either C<filter> or the anonymous sub are called, a local
+copy of C<$_> will automatically be created. It will always contain the
+empty string at this point.
 
 Next, both C<filter_read> and C<filter_read_exact> will append any
 source data that is read to the end of C<$_>.
@@ -464,7 +464,7 @@ Paul Marquess
 
 =head1 DATE
 
-15th December 1995
+26th January 1996
 
 =cut
 

@@ -1,8 +1,11 @@
 package Filter::Util::Exec ;
 
+require 5.002 ;
 require DynaLoader;
+use strict;
+use vars qw(@ISA $VERSION) ;
 @ISA = qw(DynaLoader);
-$VERSION = 1.00 ;
+$VERSION = "1.01" ;
 
 bootstrap Filter::Util::Exec ;
 1 ;

@@ -35,6 +35,8 @@ filter_tee(idx, buf_sv, maxlen)
 
 MODULE = Filter::tee	PACKAGE = Filter::tee
 
+PROTOTYPES:	DISABLE
+
 void
 import(module, filename)
     SV *	module = NO_INIT

@@ -2,8 +2,10 @@ package Filter::exec ;
 
 use Carp ;
 use Filter::Util::Exec ;
+use strict ;
+use vars qw($VERSION) ;
 
-$VERSION = 1.01 ;
+$VERSION = "1.01" ;
 
 sub import
 {

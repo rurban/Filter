@@ -1,7 +1,8 @@
 package Filter::sh;
  
 use Carp ;
-$VERSION = 1.01 ;
+use vars qw($VERSION) ;
+$VERSION = "1.01" ;
 
 use Filter::Util::Exec ;
 

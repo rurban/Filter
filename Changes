@@ -78,3 +78,18 @@
   * Fixed a bug in Exec.xs - wait was being called without a parameter.
 
   * Added a closure option to Call
+
+
+1.09 Wednesday 22nd April 1996
+----
+
+  * Fixed a warning in Exec.xs - added a cast to safefree
+
+  * Makefile.PL now uses VERSION_FROM
+
+  * Made all filter modules strict clean.
+
+  * The simple encrypt script supplied with the decryption filter will
+    now preserve the original file permissions. In addition if the
+    first line of the script begins with "#!", the line will be
+    preserved in the encrypted version.

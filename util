@@ -36,4 +36,6 @@ foreach (@INC)
 $Perl = '' ;
 $Perl = ($ENV{'FULLPERL'} or $^X or 'perl') ;
 
+$Perl = "$Perl -w" ;
+
 1;

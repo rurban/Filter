@@ -333,6 +333,7 @@ filter_exec(idx, buf_sv, maxlen)
 MODULE = Filter::Util::Exec	PACKAGE = Filter::Util::Exec
 
 REQUIRE:	1.924
+PROTOTYPES:	ENABLE
 
 BOOT:
     /* temporary hack to control debugging in toke.c */
@@ -361,7 +362,7 @@ filter_add(module, command, ...)
       command[i-1] = NULL ;
       filter_add(filter_exec, sv);
       spawnCommand(rsfp, command[0], command, &pipe_in, &pipe_out) ;
-      safefree(command) ;
+      safefree((char*)command) ;
 
       PIPE_IN(sv)   = pipe_in ;
       PIPE_OUT(sv)  = pipe_out ;

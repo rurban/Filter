@@ -41,6 +41,5 @@ print "1..2\n" ;
 ok(1, ($? >> 8) == 0) ;
 ok(2, $a eq $expected_output) ;
 
-
 unlink $filename ;
 

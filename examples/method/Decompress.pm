@@ -4,7 +4,7 @@ use Filter::Util::Call ;
 use Compress::Zlib ;
 use Carp ;
 
-$VERSION = 1.01 ;
+$VERSION = '1.01' ;
 
 sub filter 
 { 

@@ -2,8 +2,8 @@
  * Filename : decrypt.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 20th November 1995
- * Version  : 1.01
+ * Date     : 19th December 1995
+ * Version  : 1.02
  *
  */
 
@@ -269,15 +269,21 @@ filter_decrypt(idx, buf_sv, maxlen)
 
 MODULE = Filter::decrypt	PACKAGE = Filter::decrypt
 
+PROTOTYPES:	DISABLE
+
 BOOT:
-    /* Don't run if this module is dynamically linked */
 #ifndef BYPASS
+    /* Don't run if this module is dynamically linked */
     if (!isALPHA(SvPV(GvSV(CvFILEGV(cv)), na)[0]))
 	croak("module is dynamically linked. Recompile as a static module") ;
-#endif
 #ifdef DEBUGGING
 	/* Don't run if compiled with DEBUGGING */
 	croak("recompile without -DDEBUGGING") ;
+#endif
+        
+	/* Double check that DEBUGGING hasn't been enabled */
+	if (debug)
+	    croak("debugging flags detected") ;
 #endif
 
 
@@ -292,10 +298,6 @@ import(module)
 	/* make sure the Perl debugger isn't enabled */
 	if( perldb )
 	    croak("debugger disabled") ;
-
-	/* Double check that DEBUGGING hasn't been enabled */
-	if (debug)
-	    croak("debugging flags detected") ;
 
         filter_add(filter_decrypt, sv) ;
 	FIRST_TIME(sv) = TRUE ;
