@@ -1,0 +1,23 @@
+General
+-------
+
+  * static linking.
+
+  * a pod about the mechanics of filters might be useful.
+
+Filter::exec
+------------
+
+  * non-blocking i/o constants may need Configure support.
+
+Filter::decrypt
+---------------
+
+  * stop the perl debug banner from messing up the test output.
+
+Filter::call
+------------
+
+  * redo the interface?
+
+  * The perl interface needs to be documented.

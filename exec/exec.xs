@@ -1,0 +1,397 @@
+/* 
+ * Filename : exec.xs
+ * 
+ * Author   : Paul Marquess <pmarquess@bfsec.bt.co.uk>
+ * Date     : 20th June 1995
+ * Version  : 1.0
+ *
+ */
+
+#include "EXTERN.h"
+#include "perl.h"
+#include "XSUB.h"
+
+#include <fcntl.h>
+
+static int fdebug = 0 ;
+
+
+#define PIPE_IN(sv)	IoLINES(sv)
+#define PIPE_OUT(sv)	IoPAGE(sv)
+
+#define BUF_SV(sv)	IoTOP_GV(sv)
+#define BUF_START(sv)	SvPVX(BUF_SV(sv))
+#define BUF_SIZE(sv)	SvCUR(BUF_SV(sv))
+#define BUF_NEXT(sv)	IoFMT_NAME(sv)
+#define BUF_END(sv)	(BUF_START(sv) + BUF_SIZE(sv))
+
+
+static int
+pipe_read(sv, idx, maxlen)
+SV  * sv ;
+int idx ;
+int maxlen ;
+{
+    int    pipe_in  = PIPE_IN(sv) ;
+    int    pipe_out = PIPE_OUT(sv) ;
+
+    int r ;
+    int w ;
+    int len ;
+
+    if (fdebug)
+        warn ("*PIPE_READ(sv=%d, SvCUR(sv)=%d, idx=%d, maxlen=%d\n",
+		sv, SvCUR(sv), idx, maxlen) ;
+
+    if (!maxlen)
+	maxlen = 1024 ;
+
+    /* just make sure the SV is big enough */
+    SvGROW(sv, SvCUR(sv) + maxlen) ;
+
+    for(;;)
+    {       
+	if ( !BUF_NEXT(sv) )
+            BUF_NEXT(sv) = BUF_START(sv);
+        else
+        {       
+	    /* try to get data from filter, if any */
+            errno = 0;
+	    len = SvCUR(sv) ;
+            if ((r = read(pipe_in, SvPVX(sv) + len, maxlen)) > 0)
+	    {
+                if (fdebug)
+                    warn ("*pipe_read(%d) from pipe returned %d [%*s]\n", 
+				idx, r, r, SvPVX(sv) + len) ;
+		SvCUR_set(sv, r + len) ;
+                return SvCUR(sv);
+	    }
+
+            if (fdebug)
+                warn ("*pipe_read(%d) returned %d, errno = %d %s\n", 
+			idx, r, errno, Strerror(errno)) ;
+
+#ifdef EAGAIN
+            if (errno != EAGAIN)
+#else
+#ifdef EWOULDBLOCK
+            if (errno != EWOULDBLOCK)
+#endif
+#endif
+	    {
+		/* close the read pipe on error/eof */
+    		if (fdebug)
+		    warn("*pipe_read(%d) -- EOF <#########\n", idx) ;
+		close (pipe_in) ; 
+                return 0;
+	    }
+        }
+
+        /* get some raw data to stuff down the pipe */
+	/* But only when BUF_SV is empty */
+        if (BUF_NEXT(sv) >= BUF_END(sv))
+        {       
+	    /* empty BUF_SV */
+	    SvCUR_set(BUF_SV(sv), 0) ;
+            if ((len = FILTER_READ(idx+1, BUF_SV(sv), 0)) > 0) {
+		BUF_NEXT(sv) = BUF_START(sv);
+                if (fdebug)
+                    warn ("*pipe_read(%d) Filt Rd returned %d %d [%*s]\n", 
+			idx, len, BUF_SIZE(sv), BUF_SIZE(sv), BUF_START(sv)) ;
+	     }
+             else {
+                /* eof, close write end of pipe */
+                close(pipe_out) ; 
+                if (fdebug)
+                    warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
+				idx, errno,
+			Strerror(errno)) ;
+	     }
+         }
+ 
+ 	 /* write down the pipe */
+         if ((w = BUF_END(sv) - BUF_NEXT(sv)) > 0)
+         {       
+	     errno = 0;
+             if ((w = write(pipe_out, BUF_NEXT(sv), w)) > 0) {
+                 BUF_NEXT(sv) += w;
+                 if (fdebug)
+                    warn ("*pipe_read(%d) wrote %d bytes to pipe\n", idx, w) ;
+	     }
+#ifdef EAGAIN
+            else if (errno != EAGAIN) {
+#else
+#ifdef EWOULDBLOCK
+            else if (errno != EWOULDBLOCK) {
+#endif
+#endif
+                 if (fdebug)
+                    warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
+				idx, errno, Strerror(errno)) ;
+                 /* close(pipe_out) ; */
+                 return 0;
+	     }
+             else {    /* pipe is full, sleep for a while, then continue */
+                 if (fdebug)
+                    warn ("*pipe_read(%d) - sleeping\n", idx ) ;
+		 sleep(1);
+	     }
+        }
+    }
+}
+
+
+
+/* make_nonblock is taken more of less complete frok Tk */
+static void
+make_nonblock(f)
+int  f;
+{
+   int mode ;
+   int RETVAL = fcntl(f, F_GETFL);
+
+   if (RETVAL < 0)
+        croak("fcntl(f, F_GETFL) failed, RETVAL = %d, errno = %d",
+		RETVAL, errno) ;
+
+   mode = RETVAL;
+#ifdef O_NONBLOCK
+   /* POSIX style */
+#ifdef O_NDELAY
+   /* Ooops has O_NDELAY too - make sure we don't
+    * get SysV behaviour by mistake
+    */
+   if ((mode & O_NDELAY) || !(mode & O_NONBLOCK)) 
+       RETVAL = fcntl(f, F_SETFL, (mode & ~O_NDELAY) | O_NONBLOCK);
+#else
+   /* Standard POSIX */
+   if (!(mode & O_NONBLOCK))
+       RETVAL = fcntl(f, F_SETFL, mode | O_NONBLOCK);
+#endif
+#else
+   /* Not POSIX - better have O_NDELAY or we can't cope.
+    * for BSD-ish machines this is an acceptable alternative
+    * for SysV we can't tell "would block" from EOF but that is
+    * the way SysV is...
+    */
+   if (!(mode & O_NDELAY))
+       RETVAL = fcntl(f, F_SETFL, mode | O_NDELAY);
+#endif
+
+    if (RETVAL < 0)
+        croak("cannot create a non-blocking pipe, RETVAL = %d, errno = %d", 
+		RETVAL, errno) ;
+}
+
+
+
+#define READER	0
+#define	WRITER	1
+
+static void
+spawnCommand(fil, command, parameters, p0, p1)	
+FILE * fil;
+char * command ;
+char * parameters[] ;
+int  * p0 ;
+int  * p1 ;
+{
+    int p[2], c[2];
+    SV * sv ;
+    int	pipepid;
+
+    /* Check that the file is seekable */
+    /* if (lseek(fileno(fil), ftell(fil), 0) == -1) { */
+	/* croak("lseek failed: %s", Strerror(errno)) ; */
+    /* }  */
+
+    if (pipe(p) < 0 || pipe(c)) {
+	fclose( fil );
+	croak("Can't get pipe for %s", command);
+    }
+
+    /* make sure that the child doesn't get anything extra */
+    fflush(stdout);
+    fflush(stderr);
+
+    while ((pipepid = fork()) < 0) {
+	if (errno != EAGAIN) {
+	    close(p[0]);
+	    close(p[1]);
+	    close(c[0]) ;
+	    close(c[1]) ;
+	    fclose( fil );
+	    croak("Can't fork for %s", command);
+	}
+	sleep(1);
+    }
+
+    if (pipepid == 0) {
+	/* The Child */
+
+	close(p[READER]) ;
+	close(c[WRITER]) ;
+	if (c[READER] != 0) {
+	    dup2(c[READER], 0);
+	    close(c[READER]); 
+	}
+	if (p[WRITER] != 1) {
+	    dup2(p[WRITER], 1);
+	    close(p[WRITER]); 
+	}
+
+	/* Run command */
+	execvp(command, parameters) ;
+        croak("execvp failed for command '%s': %s", command, Strerror(errno)) ;
+	fflush(stdout);
+	fflush(stderr);
+	_exit(0);
+    }
+
+    /* The parent */
+
+    close(p[WRITER]) ;
+    close(c[READER]) ;
+
+    /* make the pipe non-blocking */
+#if 0
+    fcntl(p[READER],F_SETFL,NON_BLOCKING); 
+    fcntl(c[WRITER],F_SETFL,NON_BLOCKING);
+#else
+    make_nonblock(p[READER]) ;
+    make_nonblock(c[WRITER]) ;
+#endif
+
+
+    *p0 = p[READER] ;
+    *p1 = c[WRITER] ;
+}
+
+
+static I32
+filter_exec(idx, buf_sv, maxlen)
+    int idx;
+    SV *buf_sv;
+    int maxlen;
+{
+    I32 len;
+    SV   *buffer = FILTER_DATA(idx);
+    char * out_ptr = SvPVX(buffer) ;
+    int	n ;
+    char *	p ;
+    char *	nl = "\n" ;
+ 
+ 
+    if (fdebug)
+        warn ("filter_sh(idx=%d, SvCUR(buf_sv)=%d, maxlen=%d\n", 
+		idx, SvCUR(buf_sv), maxlen) ;
+    while (1) {
+
+        /* If there was a partial line/block left from last time
+           copy it now
+        */
+        if (n = SvCUR(buffer)) {
+	    out_ptr  = SvPVX(buffer) ;
+	    if (maxlen) { 
+		/* want a block */
+    		if (fdebug)
+		    warn("filter_sh(%d) - wants a block\n", idx) ;
+                sv_catpvn(buf_sv, out_ptr, maxlen > n ? n : maxlen );
+                if(n <= maxlen)
+                    SvCUR_set(buffer, 0) ;
+                else {
+                    memcpy(out_ptr, out_ptr+maxlen, n - maxlen);
+                    SvCUR_set(buffer, n - maxlen) ;
+                }
+                return SvCUR(buf_sv);
+	    }
+	    else {
+		/* want a line */
+    		if (fdebug)
+		    warn("filter_sh(%d) - wants a line\n", idx) ;
+                if (p = ninstr(out_ptr, out_ptr + n - 1, nl, nl)) {
+                    sv_catpvn(buf_sv, out_ptr, p - out_ptr + 1);
+                    n = n - (p - out_ptr + 1);
+                    memmove(out_ptr, p + 1, n); 
+                    SvCUR(buffer) = n ;
+                    if (fdebug)
+                        warn("recycle(%d) - leaving %d [%s], returning %d %d [%s]", 
+				idx, n, 
+				SvPVX(buffer), p - out_ptr + 1, 
+				SvCUR(buf_sv), SvPVX(buf_sv)) ;
+     
+                    return SvCUR(buf_sv);
+                }
+                else /* partial buffer didn't have any newlines, so copy it all */
+                    sv_catsv(buf_sv, buffer) ;
+	    }
+ 
+        }
+ 
+
+	/* the buffer has been consumed, so reset the length */
+	SvCUR_set(buffer, 0) ;
+        /* read from the sub-process */
+        if ( (n=pipe_read(buffer, idx, maxlen)) <= 0) {
+ 
+            if (fdebug)
+                warn ("filter_sh(%d) - pipe_read returned %d , returning %d\n", 
+			idx, n, (SvCUR(buf_sv)>0) ? SvCUR(buf_sv) : n);
+ 
+            SvCUR_set(buffer, 0);
+ 
+            /* filter_del(filter_sh);  */
+ 
+            /* return what we have so far else signal eof */
+            return (SvCUR(buf_sv)>0) ? SvCUR(buf_sv) : n;
+        }
+ 
+        if (fdebug)
+            warn("  filter_sh(%d): pipe_read returned %d %d: '%s'",
+                idx, n, SvCUR(buffer), SvPV(buffer,na));
+ 
+        /* The block just read didn't have a newline */
+        /* SvCUR(buffer) = n ; */
+ 
+        /* copy over what we have decoded so far of the incomplete line */
+        /* sv_catpvn(buf_sv, out_ptr, n); */
+
+    }
+
+}
+
+
+MODULE = Filter::exec		PACKAGE = Filter::exec
+
+BOOT:
+    /* temporary hack to control debugging in toke.c */
+    /* filter_add(NULL, (fdebug) ? (SV*)"1" : (SV*)"0"); */
+
+
+void
+import(module, command, ...)
+    SV *	module = NO_INIT
+    char **	command = (char**) safemalloc(items * sizeof(char*)) ;
+    CODE:
+      	int i ;
+      	int pipe_in, pipe_out ;
+	SV * sv = newSVpv("", 0) ;
+ 
+      if (fdebug)
+          warn("Filter::exec::import\n") ;
+      for (i = 1 ; i < items ; ++i)
+      {
+          command[i-1] = SvPV(ST(i), na) ;
+      	  if (fdebug)
+	      warn("    %s\n", command[i-1]) ;
+      }
+      command[i-1] = NULL ;
+      filter_add(filter_exec, sv);
+      spawnCommand(rsfp, command[0], command, &pipe_in, &pipe_out) ;
+      safefree(command) ;
+
+      PIPE_IN(sv)   = pipe_in ;
+      PIPE_OUT(sv)  = pipe_out ;
+      BUF_SV(sv)    = newSVpv("", 0) ;
+      BUF_NEXT(sv)  = NULL ;
+

@@ -1,0 +1,52 @@
+
+1.02 Tuesday 20th June 1995
+----
+
+    * First release.
+
+1.03 Sunday 25th June 1995
+----
+
+    * Tidied up the build process so that it doesn't need an empty
+      Filter.xs file.
+
+1.04 Sunday 25th June 1995
+----
+
+    * The test harness now uses $^X to invoke Perl.
+
+
+1.05 Monday 26th June 1995
+----
+
+   * updated MANIFEST
+
+   * tee.t test 5 has been hard-wired to return true if run as root.
+
+   * The test files don't use $^X to invoke perl any more. I've passed
+     the MakeMaker symbol FULLPERL via an environment variable. A bit
+     of a kludge, but it does work :-)
+
+   * added a mytest target to allow users to play with the Filters
+     without having to install them.
+
+   * The EWOULDBLOCK/EAGAIN stuff has been wrapped in preprocessor code.
+
+   * The hints files don't seem to be needed anymore.
+
+
+1.06 Sunday 2nd July 1995
+----
+
+    * Renamed decrypt.test to decrypt.tst.
+
+    * Renamed mytest.pl to mytest - it was getting installed.
+
+    * exec.xs had a bit of debugging code lurking around. This meant
+      that O_NONBLOCK was *always* being used to set non-blocking i/o.
+      This has been removed.
+
+    * Changed the way O_NONBLOCK/O_NDELAY was being detected. The Tk
+      method is now used.
+
+    * Addition of Filter::call - first go at implementation of perl filters.
