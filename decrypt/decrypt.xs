@@ -229,16 +229,11 @@ filter_decrypt(idx, buf_sv, maxlen)
 	            (SvCUR(buf_sv)>0) ? SvCUR(buf_sv) : n);
 #endif
 
-	    /* don't leave last source buffer lying around */
-	    SvREFCNT_dec(DECRYPT_SV(my_sv));
-	    DECRYPT_SV(my_sv) = &sv_undef;
-
-
 	    /* If the decrypt code needs to tidy up on EOF/error, 
 		now is the time  - here is a hook */
 	    postDecrypt() ; 
 
-	    /* filter_del(filter_decrypt);   */
+	    filter_del(filter_decrypt);  
 
  
             /* If error, return the code */

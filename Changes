@@ -93,3 +93,8 @@
     now preserve the original file permissions. In addition if the
     first line of the script begins with "#!", the line will be
     preserved in the encrypted version.
+
+1.10 Thursday 20th June 1996
+----
+
+  * decrypt now calls filter_del.

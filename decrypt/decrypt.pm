@@ -4,7 +4,7 @@ require 5.002 ;
 require DynaLoader;
 @ISA = qw(DynaLoader);
 use vars qw($VERSION);
-$VERSION = "1.02" ;
+$VERSION = "1.03" ;
 
 bootstrap Filter::decrypt ;
 1;
