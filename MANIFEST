@@ -42,5 +42,5 @@ t/tee.t
 tee/Makefile.PL
 tee/tee.pm
 tee/tee.xs
-util
+filter-util.pl
 perlfilter.pod

@@ -1,6 +1,6 @@
 
 use strict ;
-use warnings ;
+local ($^W) = 1; #use warnings ;
 
 use vars qw( $Perl $Inc) ;
 

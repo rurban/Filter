@@ -7,28 +7,35 @@ use strict;
 use warnings;
 use vars qw($VERSION);
 
-$VERSION = '1.02' ;
+$VERSION = '1.03' ;
 
-if ($^O eq 'MSSin32')
+my $cpp;
+my $sep;
+if ($^O eq 'MSWin32') {
+    $cpp = 'cpp.exe' ;
+    $sep = ';';
+}
+else {
+    ($cpp) = $Config{cppstdin} =~ /^(\S+)/;
+    $sep = ':';
+}
+
+croak ("Cannot find cpp\n")
+    if ! $cpp;
+
+# Check if cpp is installed
+my $foundCPP = 0 ;
+foreach my $dir (split $sep, $ENV{PATH})
 {
-    # Check if cpp is installed
-    my $foundCPP = 0 ;
-    foreach (split ":", $ENV{PATH})
+    if (-x "$dir/$cpp")
     {
-        if (-e "$_/cpp.exe")
-        {
-            $foundCPP = 1;
-            last ;
-        }
+        $foundCPP = 1;
+        last ;
     }
-    croak "Cannot find cpp\n"
-        if ! $foundCPP ;
 }
-else
-{
-    croak ("Cannot find cpp")
-	    if $Config{'cppstdin'} eq '' ;
-}
+
+croak "Cannot find cpp\n"
+    if ! $foundCPP ;
 
 sub import 
 { 

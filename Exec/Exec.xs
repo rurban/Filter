@@ -339,29 +339,29 @@ spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)
     /* create the pipes */
     if (win32_pipe(p,512,O_TEXT|O_NOINHERIT) == -1
 	|| win32_pipe(c,512,O_BINARY|O_NOINHERIT) == -1) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't get pipe for %s", command);
     }
 
     /* duplicate stdout and stdin */
     oldstdout = dup(fileno(stdout));
     if (oldstdout == -1) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't dup stdout for %s", command);
     }
     oldstdin  = dup(fileno(stdin));
     if (oldstdin == -1) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't dup stdin for %s", command);
     }
 
     /* duplicate inheritable ends as std handles for the child */
     if (dup2(p[WRITER], fileno(stdout))) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't attach pipe to stdout for %s", command);
     }
     if (dup2(c[READER], fileno(stdin))) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't attach pipe to stdin for %s", command);
     }
 
@@ -372,17 +372,17 @@ spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)
     /* spawn child process (which inherits the redirected std handles) */
     pipe_pid = spawnvp(P_NOWAIT, command, parameters);
     if (pipe_pid == -1) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't spawn %s", command);
     }
 
     /* restore std handles */
     if (dup2(oldstdout, fileno(stdout))) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't restore stdout for %s", command);
     }
     if (dup2(oldstdin, fileno(stdin))) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't restore stdin for %s", command);
     }
 
@@ -405,7 +405,7 @@ spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)
     /* }  */
 
     if (pipe(p) < 0 || pipe(c)) {
-	fclose( fil );
+	PerlIO_close( fil );
 	croak("Can't get pipe for %s", command);
     }
 
@@ -419,7 +419,7 @@ spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)
 	    close(p[1]);
 	    close(c[0]) ;
 	    close(c[1]) ;
-	    fclose( fil );
+	    PerlIO_close( fil );
 	    croak("Can't fork for %s", command);
 	}
 	sleep(1);

@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-require "./util" ;
+require "./filter-util.pl" ;
 
 use vars qw( $Inc $Perl $tee1) ;
 

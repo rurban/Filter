@@ -6,10 +6,9 @@ use Config;
 BEGIN 
 {
     my $foundCPP = 0 ;
-    if ($^O eq 'MSSin32') {
+    if ($^O eq 'MSWin32') {
         # Check if cpp is installed
-        my $foundCPP = 0 ;
-        foreach (split ":", $ENV{PATH}) {
+        foreach (split ";", $ENV{PATH}) {
             if (-e "$_/cpp.exe") {
                 $foundCPP = 1;
                 last ;
@@ -29,7 +28,7 @@ BEGIN
 
 use vars qw( $Inc $Perl ) ;
 
-require "./util" ;
+require "./filter-util.pl" ;
 
 my $script = <<'EOF' ;
 use Filter::cpp ;

@@ -27,6 +27,7 @@ static int fdebug = 0;
 #    define PL_rsfp_filters	rsfp_filters
 #    define PL_perldb		perldb
 #    define PL_curcop		curcop
+#    define PL_na		na
 
 #endif
 
@@ -182,7 +183,7 @@ filter_decrypt(pTHX_ int idx, SV *buf_sv, int maxlen)
     while (1) {
 
 	/* anything left from last time */
-	if (n = SvCUR(DECRYPT_SV(my_sv))) {
+	if ((n = SvCUR(DECRYPT_SV(my_sv)))) {
 
 	    out_ptr = SvPVX(DECRYPT_SV(my_sv)) + DECRYPT_OFFSET(my_sv) ;
 
@@ -207,7 +208,7 @@ filter_decrypt(pTHX_ int idx, SV *buf_sv, int maxlen)
 	    }
 	    else {
 		/* want lines */
-                if (p = ninstr(out_ptr, out_ptr + n - 1, nl, nl)) {
+                if ((p = ninstr(out_ptr, out_ptr + n - 1, nl, nl))) {
 
 	            sv_catpvn(buf_sv, out_ptr, p - out_ptr + 1);
 
@@ -261,7 +262,7 @@ filter_decrypt(pTHX_ int idx, SV *buf_sv, int maxlen)
 #ifdef FDEBUG
 	if (fdebug)
 	    warn("  filter_decrypt(%d): sub-filter returned %d: '%.999s'",
-		idx, n, SvPV(my_sv,na));
+		idx, n, SvPV(my_sv,PL_na));
 #endif
 
 	/* Now decrypt a block */
@@ -286,7 +287,7 @@ BOOT:
         croak("Aborting, Compiler detected") ;
 #ifndef BYPASS
     /* Don't run if this module is dynamically linked */
-    if (!isALPHA(SvPV(GvSV(CvFILEGV(cv)), na)[0]))
+    if (!isALPHA(SvPV(GvSV(CvFILEGV(cv)), PL_na)[0]))
 	croak("module is dynamically linked. Recompile as a static module") ;
 #ifdef DEBUGGING
 	/* Don't run if compiled with DEBUGGING */
@@ -294,14 +295,14 @@ BOOT:
 #endif
         
 	/* Double check that DEBUGGING hasn't been enabled */
-	if (debug)
+	if (PL_debug)
 	    croak("debugging flags detected") ;
 #endif
 
 
 void
 import(module)
-    SV *	module = NO_INIT
+    SV *	module
     PPCODE:
     {
 

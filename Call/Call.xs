@@ -11,6 +11,7 @@
  *
  */
 
+#define PERL_NO_GET_CONTEXT
 #include "EXTERN.h"
 #include "perl.h"
 #include "XSUB.h"
@@ -67,7 +68,7 @@ filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
     while (1) {
 
 	/* anything left from last time */
-	if (n = SvCUR(my_sv)) {
+	if ((n = SvCUR(my_sv))) {
 
 	    out_ptr = SvPVX(my_sv) + BUF_OFFSET(my_sv) ;
 
@@ -90,7 +91,7 @@ filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
 	    }
 	    else {
 		/* want lines */
-                if (p = ninstr(out_ptr, out_ptr + n - 1, nl, nl)) {
+                if ((p = ninstr(out_ptr, out_ptr + n - 1, nl, nl))) {
 
 	            sv_catpvn(buf_sv, out_ptr, p - out_ptr + 1);
 
@@ -243,7 +244,7 @@ filter_del()
 
 
 void
-unimport(...)
+unimport(package="$Package", ...)
     PPCODE:
     filter_del(filter_call);
 

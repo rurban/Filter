@@ -1,27 +1,41 @@
 
 use strict;
 use warnings;
+use Config;
 
-require "util" ;
+BEGIN 
+{
+    my $foundTR = 0 ;
+    if ($^O eq 'MSWin32') {
+        # Check if tr is installed
+        foreach (split ";", $ENV{PATH}) {
+            if (-e "$_/tr.exe") {
+                $foundTR = 1;
+                last ;
+            }
+        }
+    }
+    else {
+        $foundTR = 1
+            if $Config{'tr'} ne '' ;
+    }
+
+    if (! $foundTR) {
+        print "1..0 # Skipping tr not found on this system.\n" ;
+        exit 0 ;
+    }
+}
+
+require "filter-util.pl" ;
 
 use vars qw( $Inc $Perl $script ) ;
 
-if ($^O =~ /win32/i) {
-$script = <<'EOF' ;
-# our tr.exe puts out stderr noise
-use Filter::exec qw'cmd /c tr [A-E][I-M] [a-e][i-m] 2>nul' ;
-use Filter::exec qw'cmd /c tr [N-Z] [n-z] 2>nul' ;
-
-EOF
-}
-else {
 $script = <<'EOF' ;
 
-use Filter::exec qw'tr [A-E][I-M] [a-e][i-m]' ;
-use Filter::exec qw'tr [N-Z] [n-z]' ;
+use Filter::exec qw(tr '[A-E][I-M]' '[a-e][i-m]') ;
+use Filter::exec qw(tr '[N-Z]' '[n-z]') ;
 
 EOF
-}
 
 $script .= <<'EOF' ;
 

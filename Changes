@@ -202,3 +202,16 @@
 
   * Modified Makefile.PL to only enable the warnings pragma if using perl
     5.6.1 or better.    
+
+1.24 
+----
+
+  * Fixed sh.t, exec.t & cpp.t to work properly on NT 
+    patch courtesy of Steve Hay.
+
+  * The detection of cpp in cpp.pm is now more robust
+    patch courtesy of Michael Schwern
+
+  * Changed na to PL_na in decrypt.xs
+
+  * Merged Core patches 10752, 11434
