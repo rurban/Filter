@@ -2,8 +2,8 @@
  * Filename : exec.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 17th March 1999
- * Version  : 1.03
+ * Date     : 26th March 2000
+ * Version  : 1.04
  *
  */
 
@@ -16,10 +16,10 @@
 static int fdebug = 0 ;
 
 #ifndef PERL_VERSION
-#include "patchlevel.h"
-#define PERL_REVISION	5
-#define PERL_VERSION	PATCHLEVEL
-#define PERL_SUBVERSION	SUBVERSION
+#    include "patchlevel.h"
+#    define PERL_REVISION	5
+#    define PERL_VERSION	PATCHLEVEL
+#    define PERL_SUBVERSION	SUBVERSION
 #endif
 
 #if PERL_REVISION == 5 && (PERL_VERSION < 4 || (PERL_VERSION == 4 && PERL_SUBVERSION <= 75 ))
@@ -32,6 +32,12 @@ static int fdebug = 0 ;
 
 #endif 
 
+#ifndef pTHX
+#    define pTHX
+#    define pTHX_
+#    define aTHX
+#    define aTHX_
+#endif
 
 #define PIPE_IN(sv)	IoLINES(sv)
 #define PIPE_OUT(sv)	IoPAGE(sv)
@@ -59,11 +65,13 @@ typedef struct {
 #ifdef USE_THREADS
     struct perl_thread *	parent;
 #endif
+#ifdef USE_ITHREADS
+    PerlInterpreter *		parent;
+#endif
 } thrarg;
 
 static void
-pipe_write(args)
-void *args ;
+pipe_write(void *args)
 {
     thrarg *targ = (thrarg *)args;
     SV *sv = targ->sv;
@@ -72,11 +80,14 @@ void *args ;
     int    pipe_out = PIPE_OUT(sv) ;
     int rawread_eof = 0;
     int r,w,len;
-    free(args);
 #ifdef USE_THREADS
     /* use the parent's perl thread context */
     SET_THR(targ->parent);
 #endif
+#ifdef USE_ITHREADS
+    PERL_SET_THX(targ->parent);
+#endif
+    free(args);
     for(;;)
     {       
 
@@ -125,10 +136,7 @@ void *args ;
 }
 
 static int
-pipe_read(sv, idx, maxlen)
-SV  * sv ;
-int idx ;
-int maxlen ;
+pipe_read(SV *sv, int idx, int maxlen)
 {
     int    pipe_in  = PIPE_IN(sv) ;
     int    pipe_out = PIPE_OUT(sv) ;
@@ -151,10 +159,13 @@ int maxlen ;
         BUF_NEXT(sv) = BUF_START(sv);
 
     if (!write_started) {
-	thrarg *targ = malloc(sizeof(thrarg));
+	thrarg *targ = (thrarg*)malloc(sizeof(thrarg));
 	targ->sv = sv; targ->idx = idx;
 #ifdef USE_THREADS
 	targ->parent = THR;
+#endif
+#ifdef USE_ITHREADS
+	targ->parent = aTHX;
 #endif
 	/* thread handle is closed when pipe_write() returns */
 	_beginthread(pipe_write,0,(void *)targ);
@@ -188,10 +199,7 @@ int maxlen ;
 
 
 static int
-pipe_read(sv, idx, maxlen)
-SV  * sv ;
-int idx ;
-int maxlen ;
+pipe_read(SV *sv, int idx, int maxlen)
 {
     int    pipe_in  = PIPE_IN(sv) ;
     int    pipe_out = PIPE_OUT(sv) ;
@@ -292,8 +300,7 @@ int maxlen ;
 
 
 static void
-make_nonblock(f)
-int  f;
+make_nonblock(int f)
 {
    int RETVAL ;
    int mode = fcntl(f, F_GETFL);
@@ -317,14 +324,13 @@ int  f;
 #define	WRITER	1
 
 static void
-spawnCommand(fil, command, parameters, p0, p1)	
-FILE * fil;
-char * command ;
-char * parameters[] ;
-int  * p0 ;
-int  * p1 ;
+spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)	
 {
 #ifdef WIN32
+
+#if defined(PERL_OBJECT)
+#  define win32_pipe(p,n,f) _pipe(p,n,f)
+#endif
 
     int p[2], c[2];
     SV * sv ;
@@ -457,10 +463,7 @@ int  * p1 ;
 
 
 static I32
-filter_exec(idx, buf_sv, maxlen)
-    int idx;
-    SV *buf_sv;
-    int maxlen;
+filter_exec(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
     I32 len;
     SV   *buffer = FILTER_DATA(idx);

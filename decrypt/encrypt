@@ -29,6 +29,7 @@ foreach $file (@ARGV)
 
     open (F, "<$file") or die "Cannot open $file: $!\n" ;
     open (O, ">${file}.pe") or die "Cannot open ${file}.pe: $!\n" ;
+    binmode O;
 
     # Get the mode
     $mode = (stat F)[2] ;

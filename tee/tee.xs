@@ -2,8 +2,8 @@
  * Filename : tee.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 20th June 1995
- * Version  : 1.0
+ * Date     : 26th March 2000
+ * Version  : 1.01
  *
  */
 
@@ -11,14 +11,18 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifndef pTHX
+#    define pTHX
+#    define pTHX_
+#    define aTHX
+#    define aTHX_
+#endif
+
 static I32
-filter_tee(idx, buf_sv, maxlen)
-    int idx;
-    SV * buf_sv ;
-    int maxlen;
+filter_tee(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
     I32 len;
-    FILE * fil = (FILE*) SvIV(FILTER_DATA(idx)) ;
+    PerlIO * fil = (PerlIO*) SvIV(FILTER_DATA(idx)) ;
     int old_len = SvCUR(buf_sv) ;
  
     if ( (len = FILTER_READ(idx+1, buf_sv, maxlen)) <=0 ) {
@@ -44,8 +48,8 @@ import(module, filename)
     char *	filename
     CODE:
 	SV   * stream = newSViv(0) ;
-	FILE * fil ;
-	char * mode = "w" ;
+	PerlIO * fil ;
+	char * mode = "wb" ;
 
 	filter_add(filter_tee, stream);
 	/* check for append */
@@ -53,7 +57,7 @@ import(module, filename)
 	    ++ filename ;
 	    if (*filename == '>') {
 	        ++ filename ;
-		mode = "a" ;
+		mode = "ab" ;
 	    }
 	}
 	if ((fil = PerlIO_open(filename, mode)) == NULL) 

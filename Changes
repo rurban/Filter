@@ -151,3 +151,11 @@
   * Addition of perlfilter.pod. This is the Source Filters article from
     The Perl Journal, issue 11 and is identical to the file that is
     distributed with Perl starting withversion 5.005_63.
+
+1.18 Sunday 2nd April 2000
+----
+
+  * Test harnesses are more robust on Win32.
+
+  * Fixed a problem where an __END__ or __DATA__ could crash Perl.
+

@@ -1,10 +1,10 @@
                                  Source Filters
  
-                                  Version 1.17
+                                  Version 1.18
  
-                                  10th Dec 1999
+                                  2nd Apr 2000
  
-      Copyright (c) 1995-1999 Paul Marquess. All rights reserved.
+      Copyright (c) 1995-2000 Paul Marquess. All rights reserved.
          This program is free software; you can redistribute it and/or
                 modify it under the same terms as Perl itself.
  
@@ -23,7 +23,7 @@ PREREQUISITES
 Before you can build the Source Filters you need to have the following
 installed on your system:
 
-    * Perl 5.002 or better
+    * Perl 5.004 or better. 5.6.0 is recommended for Win32.
 
 If your Perl is less than version 5.004_55, the "order" test harness
 will be skipped.

@@ -2,8 +2,8 @@
  * Filename : decrypt.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 17th March 1999
- * Version  : 1.03
+ * Date     : 26th March 2000
+ * Version  : 1.04
  *
  */
 
@@ -16,10 +16,10 @@ static int fdebug = 0;
 #endif
 
 #ifndef PERL_VERSION
-#include "patchlevel.h"
-#define PERL_REVISION   5
-#define PERL_VERSION    PATCHLEVEL
-#define PERL_SUBVERSION SUBVERSION
+#    include "patchlevel.h"
+#    define PERL_REVISION   5
+#    define PERL_VERSION    PATCHLEVEL
+#    define PERL_SUBVERSION SUBVERSION
 #endif
 
 #if PERL_REVISION == 5 && (PERL_VERSION < 4 || (PERL_VERSION == 4 && PERL_SUBVERSION <= 75 ))
@@ -28,6 +28,13 @@ static int fdebug = 0;
 #    define PL_perldb		perldb
 #    define PL_curcop		curcop
 
+#endif
+
+#ifndef pTHX
+#    define pTHX
+#    define pTHX_
+#    define aTHX
+#    define aTHX_
 #endif
 
 /* constants specific to the encryption format */
@@ -48,7 +55,7 @@ static unsigned XOR [BLOCKSIZE] = {'P', 'e', 'r', 'l' } ;
 /* Internal defines */
 #define FILTER_COUNT(s)		IoPAGE(s)
 #define FILTER_LINE_NO(s)	IoLINES(s)
-#define FIRST_TIME(s)		IoFLAGS(s)
+#define FIRST_TIME(s)		IoLINES_LEFT(s)
 
 #define ENCRYPT_GV(s)		IoTOP_GV(s)
 #define ENCRYPT_SV(s)		((SV*) ENCRYPT_GV(s))
@@ -63,9 +70,7 @@ static unsigned XOR [BLOCKSIZE] = {'P', 'e', 'r', 'l' } ;
 #define SET_DECRYPT_BUFFER_LEN(s,n)	SvCUR_set(DECRYPT_SV(s), n)
 
 static unsigned
-Decrypt(in_sv, out_sv)
-SV * in_sv ;
-SV * out_sv ;
+Decrypt(SV *in_sv, SV *out_sv)
 {
 	/* Here is where the actual decryption takes place */
 
@@ -96,10 +101,7 @@ SV * out_sv ;
 }
 
 static int
-ReadBlock(idx, sv, size)
-int idx ;
-SV * sv ;
-unsigned size ;
+ReadBlock(int idx, SV *sv, unsigned size)
 {   /* read *exactly* size bytes from the next filter */
     int i = size;
     while (1) {
@@ -115,8 +117,7 @@ unsigned size ;
 }
 
 static void
-preDecrypt(idx)
-    int idx;
+preDecrypt(int idx)
 {
     /*	If the encrypted data starts with a header or needs to do some
 	initialisation it can be done here 
@@ -146,10 +147,7 @@ postDecrypt()
 }
 
 static I32
-filter_decrypt(idx, buf_sv, maxlen)
-    int idx;
-    SV *buf_sv;
-    int maxlen;
+filter_decrypt(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
     SV   *my_sv = FILTER_DATA(idx);
     char *nl = "\n";

@@ -7,6 +7,7 @@ $Perl = $Perl ;
 
 
 $filename = "call.tst" ;
+$filenamebin = "call.bin" ;
 $module   = "MyTest" ;
 $module2  = "MyTest2" ;
 $module3  = "MyTest3" ;
@@ -15,7 +16,7 @@ $module5  = "MyTest5" ;
 $nested   = "nested" ;
 $block   = "block" ;
 
-print "1..24\n" ;
+print "1..28\n" ;
 
 # Test error cases
 ##################
@@ -420,6 +421,7 @@ sub filter
     # read first line
     if (($status = filter_read()) > 0) {
 	chop ;
+	s/\r$//;
 	# and now the second line (it will append)
         $status = filter_read() ;
     }
@@ -623,7 +625,58 @@ sub filter
     my ($self) = @_ ;
     my ($status) ;
  
-    if (($status = filter_read_exact(6)) > 0) {
+    if (($status = filter_read_exact(9)) > 0) {
+        s/HERE/THERE/g
+    }
+ 
+    $status ;
+}
+ 
+1 ;
+EOM
+ 
+writeFile($filenamebin, <<EOM, <<'EOM') ;
+use $block ;
+EOM
+print "
+HERE I am
+I'm HERE
+HERE today gone tomorrow\n" ;
+EOM
+ 
+$a = `$Perl -I. $Inc $filenamebin  2>&1` ;
+ok(23, ($? >>8) == 0) ;
+ok(24, $a eq <<EOM) ;
+
+HERE I am
+I'm THERE
+THERE today gone tomorrow
+EOM
+
+{
+
+# Check __DATA__
+####################
+ 
+writeFile("${block}.pm", <<EOM, <<'EOM') ;
+package ${block} ;
+use Filter::Util::Call ;
+ 
+EOM
+ 
+sub import
+{
+    my ($type) = shift ;
+ 
+    filter_add(bless [] )
+}
+ 
+sub filter
+{
+    my ($self) = @_ ;
+    my ($status) ;
+ 
+    if (($status = filter_read()) > 0) {
         s/HERE/THERE/g
     }
  
@@ -636,22 +689,84 @@ EOM
 writeFile($filename, <<EOM, <<'EOM') ;
 use $block ;
 EOM
-print "
+print "HERE HERE\n";
+@a = <DATA>;
+print @a;
+__DATA__
 HERE I am
-I am HERE
-HERE today gone tomorrow\n" ;
+I'm HERE
+HERE today gone tomorrow
 EOM
  
 $a = `$Perl -I. $Inc $filename  2>&1` ;
-ok(23, ($? >>8) == 0) ;
-ok(24, $a eq <<EOM) ;
-
-THERE I am
-I am HERE
+ok(25, ($? >>8) == 0) ;
+ok(26, $a eq <<EOM) ;
+THERE THERE
+HERE I am
+I'm HERE
 HERE today gone tomorrow
 EOM
 
+}
+
+{
+
+# Check __END__
+####################
+ 
+writeFile("${block}.pm", <<EOM, <<'EOM') ;
+package ${block} ;
+use Filter::Util::Call ;
+ 
+EOM
+ 
+sub import
+{
+    my ($type) = shift ;
+ 
+    filter_add(bless [] )
+}
+ 
+sub filter
+{
+    my ($self) = @_ ;
+    my ($status) ;
+ 
+    if (($status = filter_read()) > 0) {
+        s/HERE/THERE/g
+    }
+ 
+    $status ;
+}
+ 
+1 ;
+EOM
+ 
+writeFile($filename, <<EOM, <<'EOM') ;
+use $block ;
+EOM
+print "HERE HERE\n";
+@a = <DATA>;
+print @a;
+__END__
+HERE I am
+I'm HERE
+HERE today gone tomorrow
+EOM
+ 
+$a = `$Perl -I. $Inc $filename  2>&1` ;
+ok(27, ($? >>8) == 0) ;
+ok(28, $a eq <<EOM) ;
+THERE THERE
+HERE I am
+I'm HERE
+HERE today gone tomorrow
+EOM
+
+}
+
 unlink $filename ;
+unlink $filenamebin ;
 unlink "${module}.pm" ;
 unlink "${module2}.pm" ;
 unlink "${module3}.pm" ;

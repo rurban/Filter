@@ -2,8 +2,8 @@
  * Filename : Call.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 15th December 1995
- * Version  : 1.04
+ * Date     : 26th March 2000
+ * Version  : 1.05
  *
  */
 
@@ -11,18 +11,33 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#ifndef PERL_VERSION
+#    include "patchlevel.h"
+#    define PERL_REVISION	5
+#    define PERL_VERSION	PATCHLEVEL
+#    define PERL_SUBVERSION	SUBVERSION
+#endif
+
 /* defgv must be accessed differently under threaded perl */
 /* DEFSV et al are in 5.004_56 */
 #ifndef DEFSV
-#define DEFSV		GvSV(defgv)
+#    define DEFSV		GvSV(defgv)
 #endif
+
+#ifndef pTHX
+#    define pTHX
+#    define pTHX_
+#    define aTHX
+#    define aTHX_
+#endif
+
 
 /* Internal defines */
 #define PERL_MODULE(s)		IoBOTTOM_NAME(s)
 #define PERL_OBJECT(s)		IoTOP_GV(s)
 #define FILTER_ACTIVE(s)	IoLINES(s)
 #define BUF_OFFSET(sv)  	IoPAGE_LEN(sv)
-#define CODE_REF(sv)  		IoFLAGS(sv)
+#define CODE_REF(sv)  		IoPAGE(sv)
 
 #define SET_LEN(sv,len) \
         do { SvPVX(sv)[len] = '\0'; SvCUR_set(sv, len); } while (0)
@@ -33,10 +48,7 @@ static int fdebug = 0;
 static int current_idx ;
 
 static I32
-filter_call(idx, buf_sv, maxlen)
-    int idx;
-    SV *buf_sv;
-    int maxlen;
+filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
     SV   *my_sv = FILTER_DATA(idx);
     char *nl = "\n";
@@ -118,6 +130,7 @@ filter_call(idx, buf_sv, maxlen)
     	    PUSHMARK(sp) ;
 
 	    if (CODE_REF(my_sv)) {
+	    /* if (SvROK(PERL_OBJECT(my_sv)) && SvTYPE(SvRV(PERL_OBJECT(my_sv))) == SVt_PVCV) { */
     	        count = perl_call_sv((SV*)PERL_OBJECT(my_sv), G_SCALAR);
 	    }
 	    else {
