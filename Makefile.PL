@@ -50,19 +50,31 @@ else
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.30',
+	VERSION   => '1.31',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz',
 			DIST_DEFAULT => 'MyDoubleCheck tardist'},
 	($] >= 5.005
 	    ? (ABSTRACT	=> 'Source Filters',
-	       AUTHOR  	=> 'Paul Marquess <Paul.Marquess@btinternet.com>')
+	       AUTHOR  	=> 'Paul Marquess <pmqs@cpan.org>')
 	    : ()
 	),
 	) ;
 
+sub MY::libscan
+{
+    my $self = shift ;
+    my $path = shift ;
 
-sub MY::postamble {
+    return undef
+        if $path =~ /(~|\.bak)$/ || 
+           $path =~ /^\..*\.swp$/ ;
+
+    return $path;    
+}
+
+sub MY::postamble 
+{
 	'
 
 MyDoubleCheck:	

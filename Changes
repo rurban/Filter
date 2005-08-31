@@ -261,3 +261,10 @@
   * rewording of reference to Filter::Simple 
 
   * merged core patch 18269
+
+1.31 31 August 2005
+----
+
+  * added 'libscan' to Makefile.PL to stop .bak files being installed.
+
+  * merged core patch 18269
