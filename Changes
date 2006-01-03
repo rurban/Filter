@@ -266,5 +266,11 @@
 ----
 
   * added 'libscan' to Makefile.PL to stop .bak files being installed.
+    [rt.cpan.org: Ticket #14356 .bak files are being installed ]
 
-  * merged core patch 18269
+1.32 3 January 2006
+----
+
+  * Added core patch 26509 -- fix out by one bug in Call.xs
+    Problem reported & fixed by Gisle Aas.
+
