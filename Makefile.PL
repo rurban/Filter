@@ -50,7 +50,7 @@ else
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.32',
+	VERSION   => '1.33',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz',
 			DIST_DEFAULT => 'MyDoubleCheck tardist'},
@@ -59,6 +59,8 @@ WriteMakefile(
 	       AUTHOR  	=> 'Paul Marquess <pmqs@cpan.org>')
 	    : ()
 	),
+    ((ExtUtils::MakeMaker->VERSION() gt '6.30') ?
+        ('LICENSE'  => 'perl')         : ()),
 	) ;
 
 sub MY::libscan

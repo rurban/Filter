@@ -274,3 +274,9 @@
   * Added core patch 26509 -- fix out by one bug in Call.xs
     Problem reported & fixed by Gisle Aas.
 
+1.33 1 March 2007
+----
+
+  * fixed ninstr issue for 5.8.9
+
+  * added t/pod.t

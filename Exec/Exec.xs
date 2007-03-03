@@ -513,7 +513,7 @@ filter_exec(pTHX_ int idx, SV *buf_sv, int maxlen)
 		/* want a line */
     		if (fdebug)
 		    warn("filter_sh(%d) - wants a line\n", idx) ;
-                if (p = ninstr(out_ptr, out_ptr + n - 1, nl, nl)) {
+                if (p = ninstr(out_ptr, out_ptr + n, nl, nl + 1)) {
                     sv_catpvn(buf_sv, out_ptr, p - out_ptr + 1);
                     n = n - (p - out_ptr + 1);
 		    BUF_OFFSET(buffer) += (p - out_ptr + 1);
