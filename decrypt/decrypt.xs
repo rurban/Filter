@@ -32,6 +32,14 @@ static unsigned XOR [BLOCKSIZE] = {'P', 'e', 'r', 'l' } ;
 
 
 /* Internal defines */
+#ifdef PERL_FILTER_EXISTS
+#  define CORE_FILTER_COUNT \
+    (PL_parser && PL_parser->rsfp_filters ? av_len(PL_parser->rsfp_filters) : 0)
+#else
+#  define CORE_FILTER_COUNT \
+    (PL_rsfp_filters ? av_len(PL_rsfp_filters) : 0)
+#endif
+
 #define FILTER_COUNT(s)		IoPAGE(s)
 #define FILTER_LINE_NO(s)	IoLINES(s)
 #define FIRST_TIME(s)		IoLINES_LEFT(s)
@@ -139,7 +147,7 @@ filter_decrypt(pTHX_ int idx, SV *buf_sv, int maxlen)
 
 	/* Mild paranoia mode - make sure that no extra filters have 	*/
 	/* been applied on the same line as the use Filter::decrypt	*/
-        if (AvFILL(PL_rsfp_filters) > FILTER_COUNT(my_sv) )
+        if (CORE_FILTER_COUNT > FILTER_COUNT(my_sv) )
 	    croak("too many filters") ; 
 
 	/* As this is the first time through, so deal with any 		*/
@@ -301,7 +309,7 @@ import(module)
 
 
         /* remember how many filters are enabled */
-        FILTER_COUNT(sv) = AvFILL(PL_rsfp_filters) ;
+        FILTER_COUNT(sv) = CORE_FILTER_COUNT ;
 	/* and the line number */
 	FILTER_LINE_NO(sv) = PL_curcop->cop_line ;
 

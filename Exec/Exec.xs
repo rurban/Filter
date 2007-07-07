@@ -34,6 +34,13 @@ START_MY_CXT
 #define pipe_pid	(MY_CXT.x_pipe_pid)    
 #endif
 
+#ifdef PERL_FILTER_EXISTS
+#  define CORE_FILTER_SCRIPT PL_parser->rsfp
+#else
+#  define CORE_FILTER_SCRIPT PL_rsfp
+#endif
+
+
 #define PIPE_IN(sv)	IoLINES(sv)
 #define PIPE_OUT(sv)	IoPAGE(sv)
 #define PIPE_PID(sv)	IoLINES_LEFT(sv)
@@ -603,7 +610,7 @@ filter_add(module, command, ...)
       }
       command[i-1] = NULL ;
       filter_add(filter_exec, sv);
-      pid = spawnCommand(PL_rsfp, command[0], command, &pipe_in, &pipe_out) ;
+      pid = spawnCommand(CORE_FILTER_SCRIPT, command[0], command, &pipe_in, &pipe_out) ;
       safefree((char*)command) ;
 
       PIPE_PID(sv)  = pid ;

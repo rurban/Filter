@@ -280,3 +280,13 @@
   * fixed ninstr issue for 5.8.9
 
   * added t/pod.t
+
+1.34 7 July 2007
+----
+
+  * Included Core patch #31200 - change to support perl 5.10 for
+    Filter::Util::Call
+
+  * Also included the equivalent changes for the other filters. Patch
+    kindly provided by Steve Hay.
+
