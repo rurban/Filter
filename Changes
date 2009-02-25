@@ -290,3 +290,9 @@
   * Also included the equivalent changes for the other filters. Patch
     kindly provided by Steve Hay.
 
+1.35 25 February 2009
+----
+
+  * Included Core patches 32864, 33341 & 34776
+
+  * Side effect of above patches means that Filters needs at least Perl 5.005

@@ -2,8 +2,8 @@ use ExtUtils::MakeMaker;
 
 BEGIN
 {
-    die "Filters needs Perl version 5.004 or better, you have $]\n"
-	if $] < 5.004 ;
+    die "Filters needs Perl version 5.005 or better, you have $]\n"
+	if $] < 5.005 ;
 
     warn "Perl 5.6.0 or better is strongly recommended for Win32\n"
 	if $^O eq 'MSWin32' && $] < 5.006 ;
@@ -50,10 +50,10 @@ else
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.34',
+	VERSION   => '1.35',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz',
-			DIST_DEFAULT => 'MyDoubleCheck tardist'},
+			DIST_DEFAULT => 'tardist'},
 	($] >= 5.005
 	    ? (ABSTRACT	=> 'Source Filters',
 	       AUTHOR  	=> 'Paul Marquess <pmqs@cpan.org>')
@@ -75,20 +75,20 @@ sub MY::libscan
     return $path;    
 }
 
-sub MY::postamble 
-{
-	'
-
-MyDoubleCheck:	
-	@echo Checking for $$^W in files
-	@perl -ne \'						\
-	    exit 1 if /^\s*local\s*\(\s*\$$\^W\s*\)/;		\
-         \' ' . " @files || " . '				\
-	(echo found unexpected $$^W ; exit 1)
-	@echo All is ok.
-
-' ;
-}
+#sub MY::postamble 
+#{
+#	'
+#
+#MyDoubleCheck:	
+#	@echo Checking for $$^W in files
+#	@perl -ne \'						\
+#	    exit 1 if /^\s*local\s*\(\s*\$$\^W\s*\)/;		\
+#         \' ' . " @files || " . '				\
+#	(echo found unexpected $$^W ; exit 1)
+#	@echo All is ok.
+#
+#' ;
+#}
 
 sub oldWarnings
 {

@@ -2,10 +2,10 @@
  * Filename : Call.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 11th November 2001
- * Version  : 1.06
+ * Date     : 25th February 2009
+ * Version  : 1.08
  *
- *    Copyright (c) 1995-2001 Paul Marquess. All rights reserved.
+ *    Copyright (c) 1995-2009 Paul Marquess. All rights reserved.
  *       This program is free software; you can redistribute it and/or
  *              modify it under the same terms as Perl itself.
  *
@@ -53,7 +53,7 @@ filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
     dMY_CXT;
     SV   *my_sv = FILTER_DATA(idx);
-    char *nl = "\n";
+    const char *nl = "\n";
     char *p;
     char *out_ptr;
     int n;
@@ -125,9 +125,9 @@ filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
 	    SAVEINT(current_idx) ; 	/* save current idx */
 	    current_idx = idx ;
 
-	    SAVESPTR(DEFSV) ;	/* save $_ */
+	    SAVE_DEFSV ;	/* save $_ */
 	    /* make $_ use our buffer */
-	    DEFSV = sv_2mortal(newSVpv("", 0)) ; 
+	    DEFSV_set(newSVpv("", 0)) ; 
 
     	    PUSHMARK(sp) ;
 
@@ -156,6 +156,8 @@ filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
 		     n, SvCUR(DEFSV), SvPVX(DEFSV) ) ;
 	    if (SvCUR(DEFSV))
 	        sv_setpvn(my_sv, SvPVX(DEFSV), SvCUR(DEFSV)) ; 
+
+    	    sv_2mortal(DEFSV);
 
     	    PUTBACK ;
     	    FREETMPS ;
@@ -245,7 +247,7 @@ filter_del()
 
 void
 unimport(package="$Package", ...)
-    char *package
+    const char *package
     PPCODE:
     filter_del(filter_call);
 
