@@ -50,7 +50,7 @@ else
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.35',
+	VERSION   => '1.36',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz',
 			DIST_DEFAULT => 'tardist'},
@@ -59,6 +59,9 @@ WriteMakefile(
 	       AUTHOR  	=> 'Paul Marquess <pmqs@cpan.org>')
 	    : ()
 	),
+
+    INSTALLDIRS => ($] >= 5.00703 ? 'perl' : 'site'),
+
     ((ExtUtils::MakeMaker->VERSION() gt '6.30') ?
         ('LICENSE'  => 'perl')         : ()),
 	) ;

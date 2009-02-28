@@ -296,3 +296,8 @@
   * Included Core patches 32864, 33341 & 34776
 
   * Side effect of above patches means that Filters needs at least Perl 5.005
+
+1.36 28 February 2009
+----
+
+  * Fixed install issue [RT #28232]
