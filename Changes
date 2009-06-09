@@ -301,3 +301,8 @@
 ----
 
   * Fixed install issue [RT #28232]
+
+1.37 9 June 2009
+----
+
+  * No new feature or bug fixes - just sync with perl core.
