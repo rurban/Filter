@@ -269,8 +269,9 @@ PROTOTYPES:	DISABLE
 
 BOOT:
     /* Check for the presence of the Perl Compiler */
-    if (gv_stashpvn("B", 1, FALSE))
+    if (gv_stashpvn("B::NULL", 1, FALSE)) {
         croak("Aborting, Compiler detected") ;
+    }
 #ifndef BYPASS
     /* Don't run if this module is dynamically linked */
     if (!isALPHA(SvPV(GvSV(CvFILEGV(cv)), PL_na)[0]))

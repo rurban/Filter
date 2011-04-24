@@ -306,3 +306,17 @@
 ----
 
   * No new feature or bug fixes - just sync with perl core.
+
+1.38 24 April 2011
+----
+
+  * Versions being seperate from Module versions results in dependency confusion
+    Bumped all versions to match the distribution version number.
+    [RT #67655]
+
+  * Fix decrypt to work with Perl 5.14
+    [RT #67656]
+
+  * Update the Filter-Simple URL
+    [RT #49778]
+

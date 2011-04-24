@@ -4,7 +4,7 @@ use Carp ;
 use strict ;
 use warnings ;
 use vars qw($VERSION) ;
-$VERSION = "1.01" ;
+$VERSION = "1.38" ;
 
 use Filter::Util::Exec ;
 
