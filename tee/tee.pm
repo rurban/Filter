@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use vars qw( @ISA $VERSION);
 @ISA = qw(DynaLoader);
-$VERSION = "1.38" ;
+$VERSION = "1.39" ;
 
 bootstrap Filter::tee ;
 

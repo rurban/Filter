@@ -320,3 +320,9 @@
   * Update the Filter-Simple URL
     [RT #49778]
 
+1.39 30 April 2011
+----
+
+  * Fix decrypt to work with Perl 5.14
+    [RT #67656]
+

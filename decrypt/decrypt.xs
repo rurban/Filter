@@ -269,7 +269,7 @@ PROTOTYPES:	DISABLE
 
 BOOT:
     /* Check for the presence of the Perl Compiler */
-    if (gv_stashpvn("B::NULL", 1, FALSE)) {
+    if (get_av("B::NULL::ISA",0)) {
         croak("Aborting, Compiler detected") ;
     }
 #ifndef BYPASS
