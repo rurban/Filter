@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:               Filter
-version:            1.39
+version:            1.40
 abstract:           Source Filters
 author:
     - Paul Marquess <pmqs@cpan.org>
