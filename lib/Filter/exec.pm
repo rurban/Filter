@@ -6,7 +6,7 @@ use strict ;
 use warnings ;
 use vars qw($VERSION) ;
 
-$VERSION = "1.40" ;
+$VERSION = "1.41" ;
 
 sub import
 {

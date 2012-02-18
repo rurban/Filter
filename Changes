@@ -335,3 +335,8 @@
     Fixes [RT #56875] and more.
     Tested for 5.6.2, 5.8.4, 5.8.5, 5.8.8, 5.8.9, 5.10.1, 5.12.4,
     5.14.2, 5.15.7
+
+1.41 18 Feb 2012 rurban
+----
+
+  * Hide example packages from the pause indexer

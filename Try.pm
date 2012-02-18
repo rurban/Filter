@@ -1,4 +1,5 @@
-package Try ;
+package
+  Try ;
  
 use Filter::Util::Call ;
 sub import { 

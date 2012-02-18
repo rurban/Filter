@@ -1,4 +1,5 @@
-package Subst ;
+package
+  Subst ;
  
 use Filter::Util::Call ;
 use Carp ;
