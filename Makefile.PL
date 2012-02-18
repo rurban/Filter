@@ -63,7 +63,7 @@ WriteMakefile(
     INSTALLDIRS => ($] >= 5.00703 ? 'perl' : 'site'),
 
     ((ExtUtils::MakeMaker->VERSION() gt '6.30') ?
-        ('LICENSE'  => 'perl')         : ()),
+        ('LICENSE'  => 'perl', SIGN => 1)  : ()),
 	) ;
 
 sub MY::libscan
