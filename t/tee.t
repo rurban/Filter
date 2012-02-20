@@ -61,9 +61,9 @@ EOM
 ok(3, $out2 . $out3 eq readFile($tee1)) ;
 ok(4, $out4 . $out3 eq readFile($tee2)) ;
 
-if ($< == 0)
-  { ok (5, 1) }
-else {
+if ($< == 0 or ($^O =~ /MSWin32|cygwin|msys/)) {
+    ok (5, 1); # windows allows all Administrator members read-access
+} else {
     chmod 0444, $tee1 ;
     $a = `$Perl $Inc $file 2>&1` ;
 

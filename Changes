@@ -340,3 +340,9 @@
 ----
 
   * Hide example packages from the pause indexer
+
+1.42 20 Feb 2012 rurban
+----
+
+  * Improve t/tee.t test 5 on windows which allows all Administrator
+    members read-access
