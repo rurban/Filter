@@ -345,4 +345,10 @@
 ----
 
   * Improve t/tee.t test 5 on windows which allows all Administrator
-    members read-access
+    members read-access [RT #75164]
+
+1.43 21 Feb 2012 rurban
+----
+
+  * Fix more windows tests:
+    http://www.cpantesters.org/cpan/report/9e790a72-6bf5-1014-9f3b-641f296be760

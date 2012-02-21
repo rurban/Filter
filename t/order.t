@@ -59,12 +59,15 @@ my $a = `$Perl $Inc $file 2>&1` ;
 print "1..3\n" ;
 
 ok(1, ($? >> 8) == 0) ;
+chomp $a; 	# strip crlf resp. lf
 #print "|$a|\n";
-ok(2, $a eq <<EOM) ;
-DEF DEF
-EOM
+ok(2, $a eq "DEF DEF");
 
-ok(3, $fil1 eq readFile($tee1)) ;
+my $readtee1 = readFile($tee1);
+if ($^O eq 'MSWin32') {
+   $readtee1 =~ s/\r//g;
+}
+ok(3, $fil1 eq $readtee1) ;
 
 unlink $file or die "Cannot remove $file: $!\n" ;
 unlink $tee1 or die "Cannot remove $tee1: $!\n" ;
