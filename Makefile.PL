@@ -50,7 +50,7 @@ else
 
 WriteMakefile(
 	NAME      => 'Filter',
-	VERSION   => '1.43',
+	VERSION   => '1.44',
 	'linkext'   => {LINKTYPE => ''},
 	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz',
 			DIST_DEFAULT => 'tardist'},

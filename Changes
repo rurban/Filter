@@ -352,3 +352,8 @@
 
   * Fix more windows tests:
     http://www.cpantesters.org/cpan/report/9e790a72-6bf5-1014-9f3b-641f296be760
+
+1.44 2012-06-18 rurban
+----
+
+  * Sync t/call.t with core fixes in 2adbc9b6
