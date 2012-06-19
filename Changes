@@ -357,3 +357,8 @@
 ----
 
   * Sync t/call.t with core fixes in 2adbc9b6
+
+1.45 2012-06-19 rurban
+----
+
+  * Sync perlfilter.pod with core improvements
