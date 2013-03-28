@@ -49,10 +49,10 @@ else
              
 
 WriteMakefile(
-	NAME      => 'Filter',
-	VERSION   => '1.45',
+	NAME      => 'Filter::Util::Call',
+	VERSION_FROM => 'Call/Call.pm',
 	'linkext'   => {LINKTYPE => ''},
-	'dist'	  =>	{COMPRESS=>'gzip', SUFFIX=>'gz',
+	'dist'	  =>   {COMPRESS=>'gzip', SUFFIX=>'gz',
 			DIST_DEFAULT => 'tardist'},
 	($] >= 5.005
 	    ? (ABSTRACT	=> 'Source Filters',
