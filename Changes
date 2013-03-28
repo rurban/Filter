@@ -367,3 +367,4 @@
 ----
 
   * Fix RT #84210 Bad NAME in Makefile.PL (miyagawa)
+  * Fix RT #82687 cpansign MANIFEST failure (myra)
