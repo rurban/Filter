@@ -362,3 +362,8 @@
 ----
 
   * Sync perlfilter.pod with core improvements
+
+1.46 2013-03-28 rurban
+----
+
+  * Fix RT #84210 Bad NAME in Makefile.PL (miyagawa)
