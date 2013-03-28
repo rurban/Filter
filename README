@@ -1,8 +1,8 @@
                               Source Filters
  
-                               Version 1.43
+                               Version 1.46
  
-                              2012-02-21 rurban
+                              2013-03-28 rurban
  
         Copyright (c) 1995-2011 Paul Marquess. All rights reserved.
          This program is free software; you can redistribute it and/or
@@ -17,7 +17,7 @@ This distribution consists of a number of Source Filters.
 
 For more details see the pod documentation embedded in the .pm files.
 
-If you intend using the Filter::Call functionality, I would strongly
+If you intend using the Filter::Util::Call functionality, I would strongly
 recommend that you check out Damian Conway's excellent Filter::Simple
 module. Damian's module provides a much cleaner interface than
 Filter::Util::Call. Although it doesn't allow the fine control that
