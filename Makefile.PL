@@ -49,6 +49,7 @@ else
              
 
 WriteMakefile(
+	DISTNAME  => 'Filter',
 	NAME      => 'Filter::Util::Call',
 	VERSION_FROM => 'Call/Call.pm',
 	'linkext'   => {LINKTYPE => ''},
