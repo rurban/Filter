@@ -367,5 +367,9 @@
 ----
 
   * Fix RT #84210 Bad NAME in Makefile.PL (miyagawa)
+
   * Fix RT #82687 cpansign MANIFEST failure (myra)
-  * Work on RT #41285 test failures with non-english locale (srezic)
+
+  * Work on RT #41285 test failures with non-english locale (reported by srezic)
+
+  * Skip patching the src for newWarnings style, these are the default
