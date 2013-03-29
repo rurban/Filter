@@ -30,7 +30,14 @@ require "filter-util.pl" ;
 
 use vars qw( $Inc $Perl $script ) ;
 
-$script = <<'EOF' ;
+$script = '';
+if (exists $ENV{LANG} and $ENV{LANG} !~ /^C|en/) { # CPAN #41285
+  $script = "
+$ENV{LANG}='C'; $ENV{LC_ALL}='C';
+";
+}
+
+$script .= <<"EOF" ;
 
 use Filter::sh q(tr '[A-E][I-M]' '[a-e][i-m]') ;
 use Filter::sh q(tr '[N-Z]' '[n-z]') ;
@@ -44,7 +51,7 @@ PRINT "A = $A\N" ;
 
 PRINT "HELLO JOE\N" ;
 PRINT <<EOM ;
-MARY HAD 
+MARY HAD
 A
 LITTLE
 LAMB
@@ -58,7 +65,7 @@ writeFile($filename, $script) ;
 my $expected_output = <<'EOM' ;
 a = 2
 Hello joe
-mary Had 
+mary Had
 a
 little
 lamb

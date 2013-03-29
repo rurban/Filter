@@ -363,8 +363,9 @@
 
   * Sync perlfilter.pod with core improvements
 
-1.46 2013-03-28 rurban
+1.46 2013-03-29 rurban
 ----
 
   * Fix RT #84210 Bad NAME in Makefile.PL (miyagawa)
   * Fix RT #82687 cpansign MANIFEST failure (myra)
+  * Work on RT #41285 test failures with non-english locale (srezic)
