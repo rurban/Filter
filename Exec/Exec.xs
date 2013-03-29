@@ -2,8 +2,8 @@
  * Filename : exec.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 26th March 2000
- * Version  : 1.05
+ * Date     : 2013-03-29 11:46:06 rurban
+ * Version  : 1.46
  *
  */
 
@@ -255,11 +255,15 @@ pipe_read(SV *sv, int idx, int maxlen)
 		/* close the read pipe on error/eof */
     		if (fdebug)
 		    warn("*pipe_read(%d) -- EOF <#########\n", idx) ;
-		close (pipe_in) ; 
+		close (pipe_in) ;
+#if PERL_VERSION < 17 || (PERL_VERSION == 17 && PERL_SUBVERSION < 6)
 #ifdef HAVE_WAITPID
                 waitpid(pipe_pid, NULL, 0) ;
 #else
 		wait(NULL);
+#endif
+#else
+		sleep(0);
 #endif
                 return 0;
 	    }
@@ -296,9 +300,9 @@ pipe_read(SV *sv, int idx, int maxlen)
                  if (fdebug)
                     warn ("*pipe_read(%d) wrote %d bytes to pipe\n", idx, w) ;
 	     }
-            else if (errno != VAL_EAGAIN) {
+	     else if (errno != VAL_EAGAIN) {
                  if (fdebug)
-                    warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
+                    warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n",
 				idx, errno, Strerror(errno)) ;
                  /* close(pipe_out) ; */
                  return 0;
