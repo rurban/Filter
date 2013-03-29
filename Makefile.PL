@@ -42,11 +42,9 @@ my @files = qw( filter-util.pl
              t/tee.t         
            );
              
-if ($] < 5.006001)
- { oldWarnings(@files) }
-else
- { newWarnings(@files) }     
-             
+if ($] < 5.006001) { oldWarnings(@files) }
+# keep the src in the new-warnings style
+#else { newWarnings(@files) }
 
 WriteMakefile(
 	DISTNAME  => 'Filter',
