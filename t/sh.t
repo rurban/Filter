@@ -3,7 +3,7 @@ use strict;
 use warnings;
 use Config;
 
-BEGIN 
+BEGIN
 {
     my $foundTR = 0 ;
     if ($^O eq 'MSWin32') {
@@ -66,7 +66,7 @@ a (aGain) = 2
 EOM
 
 my $a = `$Perl $Inc $filename 2>&1` ;
- 
+
 print "1..2\n" ;
 ok(1, ($? >> 8) == 0) ;
 ok(2, $a eq $expected_output) ;
