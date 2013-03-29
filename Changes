@@ -373,3 +373,6 @@
   * Work on RT #41285 test failures with non-english locale (reported by srezic)
 
   * Skip patching the src for newWarnings style, these are the default
+
+  * Fix RT #53132 examples/method/Decompress.pm syntax error (kevin ryde)
+    and add usage docs.

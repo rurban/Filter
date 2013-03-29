@@ -7,7 +7,7 @@ my ($file, $output, $status) ;
 
 use Compress::Zlib ;
 
-die "Usage: mkdef file\n"
+die "Create a decompressor for a pl.gz\nUsage: filtdef file > filtfile\n"
     unless @ARGV == 1;
 
 foreach $file (@ARGV) 

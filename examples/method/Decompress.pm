@@ -1,5 +1,6 @@
 package Filter::Decompress ;
- 
+# For usage see examples/filtdef
+
 use Filter::Util::Call ;
 use Compress::Zlib ;
 use Carp ;
@@ -7,12 +8,12 @@ use Carp ;
 use strict ;
 use warnings ;
 
-our $VERSION = '1.01' ;
+our $VERSION = '1.02' ;
 
 sub filter 
 { 
     my ($self) = @_ ;
-    my ($status) ;
+    my ($status, $err) ;
     my ($inf) = $$self ;
 
     if (($status = filter_read()) >0) {
@@ -27,8 +28,8 @@ sub import
     my ($self) = @_ ;
 
     # Initialise an inflation stream.
-    my $x = inflateInit() 
-        or croak "Internal Error" ;
+    my $x = inflateInit()
+        or croak "Internal Error inflateInit" ;
     filter_add(\$x) ;
 }
 
