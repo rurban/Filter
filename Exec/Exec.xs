@@ -580,7 +580,11 @@ PROTOTYPES:	ENABLE
 BOOT:
   {
     MY_CXT_INIT;
+#ifdef FDEBUG
+    fdebug = 1;
+#else
     fdebug = 0;
+#endif
     /* temporary hack to control debugging in toke.c */
     filter_add(NULL, (fdebug) ? (SV*)"1" : (SV*)"0"); 
   }
