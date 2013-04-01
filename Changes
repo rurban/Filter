@@ -378,3 +378,10 @@
 
   * Fix RT #53132 examples/method/Decompress.pm syntax error (kevin ryde)
     and add usage docs.
+
+1.47 2013-03-31 rurban
+----
+
+  * Reproduced and fixed RT #41285 test failures with non-english locale
+    (reported by srezic)
+

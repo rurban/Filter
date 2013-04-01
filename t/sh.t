@@ -32,9 +32,7 @@ use vars qw( $Inc $Perl $script ) ;
 
 $script = '';
 if (exists $ENV{LANG} and $ENV{LANG} !~ /^C|en/) { # CPAN #41285
-  $script = "
-$ENV{LANG}='C'; $ENV{LC_ALL}='C';
-";
+  $script = q($ENV{LANG}='C'; $ENV{LC_ALL}='C';);
 }
 
 $script .= <<"EOF" ;
