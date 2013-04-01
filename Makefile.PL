@@ -46,24 +46,37 @@ if ($] < 5.006001) { oldWarnings(@files) }
 # keep the src in the new-warnings style
 #else { newWarnings(@files) }
 
-WriteMakefile(
-	DISTNAME  => 'Filter',
-	NAME      => 'Filter::Util::Call',
-	VERSION_FROM => 'Call/Call.pm',
-	'linkext'   => {LINKTYPE => ''},
-	'dist'	  =>   {COMPRESS=>'gzip', SUFFIX=>'gz',
-			DIST_DEFAULT => 'tardist'},
-	($] >= 5.005
-	    ? (ABSTRACT	=> 'Source Filters',
-	       AUTHOR  	=> 'Paul Marquess <pmqs@cpan.org>')
-	    : ()
-	),
+WriteMakefile
+  (
+   DISTNAME     => 'Filter',
+   NAME         => 'Filter::Util::Call',
+   VERSION_FROM => 'Call/Call.pm',
+   'linkext'    => {LINKTYPE => ''},
+   'dist'       => {COMPRESS=>'gzip', SUFFIX=>'gz',
+		   DIST_DEFAULT => 'tardist'},
+   ($] >= 5.005
+    ? (ABSTRACT	=> 'Source Filters',
+       AUTHOR  	=> 'Paul Marquess <pmqs@cpan.org>')
+    : ()
+   ),
 
-    INSTALLDIRS => ($] >= 5.00703 ? 'perl' : 'site'),
+   INSTALLDIRS  => ($] >= 5.00703 ? 'perl' : 'site'),
 
-    ((ExtUtils::MakeMaker->VERSION() gt '6.30') ?
-        ('LICENSE'  => 'perl', SIGN => 1)  : ()),
-	) ;
+   ((ExtUtils::MakeMaker->VERSION() gt '6.30') ?
+    ('LICENSE'  => 'perl', SIGN => 1)  : ()),
+   ((ExtUtils::MakeMaker->VERSION() gt '6.46') ?
+    ('META_MERGE'  =>
+     {recommends =>
+      {
+	'Filter::Simple'          => '0.88',
+	'Filter::Simple::Compile' => '0.02',
+      },
+      resources =>
+      {
+	license     => 'http://dev.perl.org/licenses/',
+	repository  => 'https://github.com/rurban/Filter',
+      }}) : ()),
+  );
 
 sub MY::libscan
 {

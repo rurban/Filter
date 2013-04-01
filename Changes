@@ -385,3 +385,9 @@
   * Reproduced and fixed RT #41285 test failures with non-english locale
     (reported by srezic)
 
+1.48 2013-04-01 rurban
+----
+
+  * added META records, such as repository, recommends to Makefile.PL
+
+  * added META and POD tests

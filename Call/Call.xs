@@ -3,7 +3,7 @@
  * 
  * Author   : Paul Marquess 
  * Date     : 2013-03-29 09:04:42 rurban
- * Version  : 1.47
+ * Version  : 1.48
  *
  *    Copyright (c) 1995-2011 Paul Marquess. All rights reserved.
  *       This program is free software; you can redistribute it and/or
