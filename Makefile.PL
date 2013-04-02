@@ -76,6 +76,14 @@ WriteMakefile
 	license     => 'http://dev.perl.org/licenses/',
 	repository  => 'https://github.com/rurban/Filter',
       }}) : ()),
+   clean => { FILES =>
+		"t/FilterTry.pm *~ "
+		."META.yml MYMETA.yml MYMETA.json "
+		."decrypt/MYMETA.yml decrypt/MYMETA.json decrypt/Makefile.old decrypt/pm_to_blib decrypt/*.c decrypt/*.o "
+		."tee/MYMETA.yml tee/MYMETA.json tee/Makefile.old tee/pm_to_blib tee/*.c tee/*.o "
+		."Exec/MYMETA.yml Exec/MYMETA.json Exec/Makefile.old Exec/pm_to_blib Exec/*.c Exec/*.o "
+		."Call/MYMETA.yml Call/MYMETA.json Call/Makefile.old Call/pm_to_blib Call/*.c Call/*.o"
+   }
   );
 
 sub MY::libscan

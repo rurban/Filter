@@ -391,3 +391,13 @@
   * added META records, such as repository, recommends to Makefile.PL
 
   * added META and POD tests
+
+1.49 2013-04-02 rurban
+----
+
+  * Better fix for RT #41285 test failures with non-english locale
+    (patched by srezic, pull #1)
+
+  * Add t/z_*.t meta tests (now for real), move Try to t/FilterTry,
+    add POD to Filter::Util::Call, Filter::Util::Exec and generated
+    FilterTry.

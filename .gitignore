@@ -14,6 +14,8 @@ Exec/MYMETA.yml
 Exec/Makefile
 Exec/pm_to_blib
 Filter-*.tar.gz
+Debian_CPANTS.txt
+META.yml
 MYMETA.json
 MYMETA.yml
 Makefile
@@ -33,3 +35,4 @@ tee/pm_to_blib
 tee/tee.bs
 tee/tee.c
 tee/tee.o
+t/FilterTry.pm

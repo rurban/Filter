@@ -18,29 +18,41 @@ require "./filter-util.pl" ;
 use vars qw( $Inc $Perl) ;
 
 my $file = "tee.test" ;
-my $module = "Try";
+my $module = "FilterTry";
 my $tee1 = "tee1" ;
+$Inc .= " -It";
 
-
-writeFile("${module}.pm", <<EOM, <<'EOM') ;
+writeFile("t/${module}.pm", <<EOM, <<'EOM') ;
 package ${module} ;
- 
+
 EOM
 use Filter::Util::Call ;
-sub import { 
+sub import {
     filter_add(
         sub {
- 
+
             my ($status) ;
- 
+
             if (($status = filter_read()) > 0) {
-                s/ABC/DEF/g 
+                s/ABC/DEF/g
             }
             $status ;
         } ) ;
 }
- 
-1 ;
+
+1;
+__END__
+
+=head1 NAME
+
+FilterTry - Perl Source Filter Example Module created by t/order.t
+
+=head1 SYNOPSIS
+
+    use FilterTry ;
+    sourcecode...
+
+=cut
 EOM
 
 my $fil1 = <<"EOM";

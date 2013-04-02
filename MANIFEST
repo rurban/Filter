@@ -39,9 +39,13 @@ t/cpp.t
 t/decrypt.t
 t/exec.t
 t/order.t
-t/pod.t
 t/sh.t
 t/tee.t
+t/z_kwalitee.t
+t/z_meta.t
+t/z_perl_minimum_version.t
+t/z_pod-coverage.t
+t/z_pod.t
 tee/Makefile.PL
 tee/tee.pm
 tee/tee.xs

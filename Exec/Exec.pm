@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use vars qw(@ISA $VERSION) ;
 @ISA = qw(DynaLoader);
-$VERSION = "1.48" ;
+$VERSION = "1.49" ;
 
 bootstrap Filter::Util::Exec ;
 1 ;
@@ -27,6 +27,22 @@ Filters> which use a Unix coprocess.
 
 See L<Filter::exec>, L<Filter::cpp> and L<Filter::sh> for examples of
 the use of this module.
+
+=head2 B<filter_add()>
+
+The function, C<filter_add> installs a filter. It takes one
+parameter which should be a reference. The kind of reference used will
+dictate which of the two filter types will be used.
+
+If a CODE reference is used then a I<closure filter> will be assumed.
+
+If a CODE reference is not used, a I<method filter> will be assumed.
+In a I<method filter>, the reference can be used to store context
+information. The reference will be I<blessed> into the package by
+C<filter_add>.
+
+See L<Filter::Util::Call> for examples of using context information
+using both I<method filters> and I<closure filters>.
 
 =head1 AUTHOR
 
