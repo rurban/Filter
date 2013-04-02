@@ -31,8 +31,12 @@ require "filter-util.pl" ;
 use vars qw( $Inc $Perl $script ) ;
 
 $script = '';
-if (exists $ENV{LANG} and $ENV{LANG} !~ /^C|en/) { # CPAN #41285
-  $script = q($ENV{LANG}='C'; $ENV{LC_ALL}='C';);
+if (eval {
+    require POSIX;
+    my $val = POSIX::setlocale(&POSIX::LC_CTYPE);
+    $val !~ m{^(C|en)}
+}) { # CPAN #41285
+  $script = q(BEGIN { $ENV{LANG}=$ENV{LC_ALL}=$ENV{LC_CTYPE}='C'; });
 }
 
 $script .= <<"EOF" ;
