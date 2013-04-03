@@ -401,3 +401,10 @@
   * Add t/z_*.t meta tests (now for real), move Try to t/FilterTry,
     add POD to Filter::Util::Call, Filter::Util::Exec and generated
     FilterTry.
+
+1.50 2013-04-02 rurban
+----
+
+  * Do not re-bless already blessed filter_add arguments into the callers package.
+    Fixes RT #54452
+

@@ -18,7 +18,7 @@ use vars qw($VERSION @ISA @EXPORT) ;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
-$VERSION = "1.49" ;
+$VERSION = "1.50" ;
 
 sub filter_read_exact($)
 {
@@ -48,9 +48,9 @@ sub filter_add($)
     my $coderef = (ref $obj eq 'CODE') ;
 
     # If the parameter isn't already a reference, make it one.
-    $obj = \$obj unless ref $obj ;
-
-    $obj = bless ($obj, (caller)[0]) unless $coderef ;
+    if (!$coderef and !ref $obj) {
+      $obj = bless (\$obj, (caller)[0]);
+    }
 
     # finish off the installation of the filter in C.
     Filter::Util::Call::real_import($obj, (caller)[0], $coderef) ;
@@ -193,7 +193,7 @@ If a CODE reference is used then a I<closure filter> will be assumed.
 If a CODE reference is not used, a I<method filter> will be assumed.
 In a I<method filter>, the reference can be used to store context
 information. The reference will be I<blessed> into the package by
-C<filter_add>.
+C<filter_add>, unless the reference was already blessed.
 
 See the filters at the end of this documents for examples of using
 context information using both I<method filters> and I<closure

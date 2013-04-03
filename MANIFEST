@@ -39,6 +39,7 @@ t/cpp.t
 t/decrypt.t
 t/exec.t
 t/order.t
+t/rt_54452-rebless.t
 t/sh.t
 t/tee.t
 t/z_kwalitee.t
