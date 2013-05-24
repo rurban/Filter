@@ -408,3 +408,7 @@
   * Do not re-bless already blessed filter_add arguments into the callers package.
     Fixes RT #54452
 
+1.51 2013-??-?? rurban
+----
+
+  * t/z_pod-coverage.t: omit empty Filter::decrypt
