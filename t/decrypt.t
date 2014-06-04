@@ -79,7 +79,7 @@ ok(3, $a =~ /debugger disabled/) ;
 $a = `$Perl $Inc -MCarp -MO=Deparse $filename 2>&1` ;
 #print "[[$a]]\n" ;
 my $skip = "" ;
-$skip = "# skipped -- compiler not available" 
+$skip = "# skipped -- compiler not available"
     if $a =~ /^Can't locate O\.pm in/ ||
        $a =~ /^Can't load '/ ||
        $a =~ /^"my" variable \$len masks/ ;
@@ -102,7 +102,7 @@ writeFile($filename, <<EOM) ;
 use Filter::decrypt ; use Filter::tee '/dev/null' ;
 mary had a little lamb
 EOM
- 
+
 $a = `$Perl $Inc $filename 2>&1` ;
 print "# test 6: Got '$a'\n" unless $a =~ /too many filters/ ;
 ok(6, $a =~ /too many filters/) ;

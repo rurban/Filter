@@ -36,3 +36,6 @@ tee/tee.bs
 tee/tee.c
 tee/tee.o
 t/FilterTry.pm
+/Filter-*.patch
+/Makefile.old
+/log.test-*

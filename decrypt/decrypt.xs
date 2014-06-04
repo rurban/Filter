@@ -2,8 +2,8 @@
  * Filename : decrypt.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 20th July 2000
- * Version  : 1.05
+ * Date     : 2014-06-04 11:17:56 rurban
+ * Version  : 1.50
  *
  */
 
@@ -268,8 +268,8 @@ MODULE = Filter::decrypt	PACKAGE = Filter::decrypt
 PROTOTYPES:	DISABLE
 
 BOOT:
-    /* Check for the presence of the Perl Compiler */
-    if (get_av("B::NULL::ISA",0)) {
+    /* Check for the presence of the Perl Compiler. B::C[C], B::Deparse. Bytecode works fine */
+    if (get_hv("B::C::",0) || get_av("B::NULL::ISA",0)) {
         croak("Aborting, Compiler detected") ;
     }
 #ifndef BYPASS

@@ -402,13 +402,10 @@
     add POD to Filter::Util::Call, Filter::Util::Exec and generated
     FilterTry.
 
-1.50 2013-04-02 rurban
+1.50 2014-06-04 rurban
 ----
 
   * Do not re-bless already blessed filter_add arguments into the callers package.
     Fixes RT #54452
-
-1.51 2013-??-?? rurban
-----
-
-  * t/z_pod-coverage.t: omit empty Filter::decrypt
+  * t/z_pod-coverage.t: omit empty Filter::decrypt (also fixes RT #84405)
+  * Fix Perl Compiler detection in Filter::decrypt
