@@ -2,8 +2,8 @@
  * Filename : exec.xs
  * 
  * Author   : Paul Marquess 
- * Date     : 2014-06-04 11:16:02 rurban
- * Version  : 1.50
+ * Date     : 2014-12-09 02:50:27 rurban
+ * Version  : 1.51
  *
  */
 
@@ -279,15 +279,14 @@ pipe_read(SV *sv, int idx, int maxlen)
 		BUF_NEXT(sv) = BUF_START(sv);
                 if (fdebug)
                     warn ("*pipe_write(%d) Filt Rd returned %d %" IVdf " [%*s]\n",
-			  idx, len, BUF_SIZE(sv), BUF_SIZE(sv), BUF_START(sv)) ;
+			  idx, len, BUF_SIZE(sv), (int)BUF_SIZE(sv), BUF_START(sv)) ;
 	     }
              else {
                 /* eof, close write end of pipe */
                 close(pipe_out) ; 
                 if (fdebug)
                     warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n", 
-				idx, errno,
-			Strerror(errno)) ;
+                          idx, errno, Strerror(errno)) ;
 	     }
          }
  
@@ -303,7 +302,7 @@ pipe_read(SV *sv, int idx, int maxlen)
 	     else if (errno != VAL_EAGAIN) {
                  if (fdebug)
                     warn ("*pipe_read(%d) closing pipe_out errno = %d %s\n",
-				idx, errno, Strerror(errno)) ;
+                          idx, errno, Strerror(errno)) ;
                  /* close(pipe_out) ; */
                  return 0;
 	     }
@@ -325,14 +324,14 @@ make_nonblock(int f)
  
    if (mode < 0)
         croak("fcntl(f, F_GETFL) failed, RETVAL = %d, errno = %d",
-                mode, errno) ;
+              mode, errno) ;
  
    if (!(mode & VAL_O_NONBLOCK))
        RETVAL = fcntl(f, F_SETFL, mode | VAL_O_NONBLOCK);
  
     if (RETVAL < 0)
         croak("cannot create a non-blocking pipe, RETVAL = %d, errno = %d",
-                RETVAL, errno) ;
+              RETVAL, errno) ;
 }
  
 #endif
@@ -496,7 +495,7 @@ filter_exec(pTHX_ int idx, SV *buf_sv, int maxlen)
  
     if (fdebug)
         warn ("filter_sh(idx=%d, SvCUR(buf_sv)=%" IVdf ", maxlen=%d\n",
-		idx, SvCUR(buf_sv), maxlen) ;
+              idx, SvCUR(buf_sv), maxlen) ;
     while (1) {
 	STRLEN n_a;
 

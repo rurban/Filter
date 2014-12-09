@@ -409,3 +409,10 @@
     Fixes RT #54452
   * t/z_pod-coverage.t: omit empty Filter::decrypt (also fixes RT #84405)
   * Fix Perl Compiler detection in Filter::decrypt
+
+1.51 2014-12-09 rurban
+----
+
+  * Minor -Wall -Wextra cleanups by jhi and me. Fixes RT #100742
+  * Updated Copyright years
+  * Document and warn about its limitations

@@ -6,7 +6,7 @@ use strict;
 use warnings;
 use vars qw(@ISA $VERSION) ;
 @ISA = qw(DynaLoader);
-$VERSION = "1.50" ;
+$VERSION = "1.51" ;
 
 bootstrap Filter::Util::Exec ;
 1 ;
@@ -27,6 +27,8 @@ Filters> which use a Unix coprocess.
 
 See L<Filter::exec>, L<Filter::cpp> and L<Filter::sh> for examples of
 the use of this module.
+
+Note that the size of the buffers is limited to 32-bit.
 
 =head2 B<filter_add()>
 

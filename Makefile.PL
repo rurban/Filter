@@ -54,6 +54,7 @@ WriteMakefile
    'linkext'    => {LINKTYPE => ''},
    'dist'       => {COMPRESS=>'gzip', SUFFIX=>'gz',
 		   DIST_DEFAULT => 'tardist'},
+   'SIGN' => 1,
    ($] >= 5.005
     ? (ABSTRACT	=> 'Source Filters',
        AUTHOR  	=> 'Paul Marquess <pmqs@cpan.org>')

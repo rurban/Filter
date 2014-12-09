@@ -18,7 +18,7 @@ use vars qw($VERSION @ISA @EXPORT) ;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
-$VERSION = "1.50" ;
+$VERSION = "1.51" ;
 
 sub filter_read_exact($)
 {
@@ -501,6 +501,7 @@ Paul Marquess
 =head1 LICENSE
 
 Copyright (c) 1995-2011 Paul Marquess. All rights reserved.
+Copyright (c) 2011-2014 Reini Urban. All rights reserved.
 
 This program is free software; you can redistribute it and/or
 modify it under the same terms as Perl itself.
