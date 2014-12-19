@@ -416,3 +416,9 @@
   * Minor -Wall -Wextra cleanups by jhi and me. Fixes RT #100742
   * Updated Copyright years
   * Document and warn about its limitations
+
+1.52 2014-12-19 rurban
+----
+
+  * Fix Filter::Util::Call regression from 1.50, for filter_add({}) or filter_add([]).
+    This broke Switch, see RT #101004.
