@@ -422,3 +422,9 @@
 
   * Fix Filter::Util::Call regression from 1.50, for filter_add({}) or filter_add([]).
     This broke Switch, see RT #101004.
+
+1.53 2014-12-20 rurban
+----
+
+  * Re-release caused by broken SIGNATURE, caused by broken ExtUtils::Makemaker distsignature rules.
+    See https://github.com/Perl-Toolchain-Gang/ExtUtils-MakeMaker/issues/177
