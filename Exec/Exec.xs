@@ -3,7 +3,7 @@
  * 
  * Author   : Paul Marquess 
  * Date     : 2014-12-09 02:50:27 rurban
- * Version  : 1.53
+ * Version  : 1.54
  *
  */
 
@@ -212,7 +212,9 @@ pipe_read(SV *sv, int idx, int maxlen)
     dMY_CXT;
     int    pipe_in  = PIPE_IN(sv) ;
     int    pipe_out = PIPE_OUT(sv) ;
+#if (PERL_VERSION < 17 || (PERL_VERSION == 17 && PERL_SUBVERSION < 6)) && defined(HAVE_WAITPID)
     int    pipe_pid = PIPE_PID(sv) ;
+#endif
 
     int r ;
     int w ;
@@ -319,7 +321,7 @@ pipe_read(SV *sv, int idx, int maxlen)
 static void
 make_nonblock(int f)
 {
-   int RETVAL ;
+   int RETVAL = 0;
    int mode = fcntl(f, F_GETFL);
  
    if (mode < 0)
@@ -414,7 +416,6 @@ spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)
 #else /* !WIN32 */
 
     int p[2], c[2];
-    SV * sv ;
     int	pipepid;
 
     /* Check that the file is seekable */
@@ -486,7 +487,6 @@ static I32
 filter_exec(pTHX_ int idx, SV *buf_sv, int maxlen)
 {
     dMY_CXT;
-    I32 len;
     SV   *buffer = FILTER_DATA(idx);
     char * out_ptr = SvPVX(buffer) ;
     int	n ;

@@ -428,3 +428,9 @@
 
   * Re-release caused by broken SIGNATURE, caused by broken ExtUtils::Makemaker distsignature rules.
     See https://github.com/Perl-Toolchain-Gang/ExtUtils-MakeMaker/issues/177
+
+1.54 2015-01-17 rurban
+----
+
+  * Fix some compiler warnings for -Wall. Some patches by Dave Mitchell. RT #101587
+    Note that perl5 itself is not yet -pedantic safe, Filter is.
