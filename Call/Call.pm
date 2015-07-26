@@ -298,6 +298,25 @@ May be used to disable a filter, but is rarely needed. See L<filter_del>.
 
 =back
 
+=head1 LIMITATIONS
+
+See L<perlfilter/LIMITATIONS> for an overview of the general problems
+filtering code in a textual line-level only.
+
+=over
+
+=item __DATA__ is ignored
+
+The content from the __DATA__ block is not filtered.
+This is a serious limitation, e.g. for the L<Switch> module.
+See L<http://search.cpan.org/perldoc?Switch#LIMITATIONS> for more.
+
+=item Max. codesize limited to 32-bit
+
+Currently internal buffer lengths are limited to 32-bit only.
+
+=back
+
 =head1 EXAMPLES
 
 Here are a few examples which illustrate the key concepts - as such
