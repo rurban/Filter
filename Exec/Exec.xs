@@ -221,7 +221,7 @@ pipe_read(SV *sv, int idx, int maxlen)
     int len ;
 
     if (fdebug)
-        warn ("*pipe_read(sv=%p, SvCUR(sv)=%" IVdf ", idx=%d, maxlen=%d\n",
+        warn ("*pipe_read(sv=%p, SvCUR(sv)=%" IVdf ", idx=%d, maxlen=%d)\n",
 		sv, SvCUR(sv), idx, maxlen) ;
 
     if (!maxlen)
@@ -539,9 +539,7 @@ filter_exec(pTHX_ int idx, SV *buf_sv, int maxlen)
                 else /* partial buffer didn't have any newlines, so copy it all */
 		    sv_catpvn(buf_sv, out_ptr, n) ;
 	    }
- 
         }
- 
 
 	/* the buffer has been consumed, so reset the length */
 	SET_LEN(buffer, 0) ; 
@@ -556,7 +554,7 @@ filter_exec(pTHX_ int idx, SV *buf_sv, int maxlen)
  
             SvCUR_set(buffer, 0);
 	    BUF_NEXT(buffer) = Nullch;	/* or perl will try to free() it */
-            /* filter_del(filter_sh);  */
+            filter_del(filter_exec);
  
             /* If error, return the code */
             if (n < 0)
@@ -618,7 +616,7 @@ filter_add(module, command, ...)
       command[i-1] = NULL ;
       filter_add(filter_exec, sv);
       pid = spawnCommand(CORE_FILTER_SCRIPT, command[0], command, &pipe_in, &pipe_out) ;
-      safefree((char*)command) ;
+      safefree((char*)command);
 
       PIPE_PID(sv)  = pid ;
       PIPE_IN(sv)   = pipe_in ;

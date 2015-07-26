@@ -131,19 +131,15 @@ filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
 	    DEFSV_set(newSVpv("", 0)) ; 
 
     	    PUSHMARK(sp) ;
-
 	    if (CODE_REF(my_sv)) {
 	    /* if (SvROK(PERL_OBJECT(my_sv)) && SvTYPE(SvRV(PERL_OBJECT(my_sv))) == SVt_PVCV) { */
     	        count = perl_call_sv((SV*)PERL_OBJECT(my_sv), G_SCALAR);
 	    }
 	    else {
                 XPUSHs((SV*)PERL_OBJECT(my_sv)) ;  
-	
     	        PUTBACK ;
-
     	        count = perl_call_method("filter", G_SCALAR);
 	    }
-
     	    SPAGAIN ;
 
             if (count != 1)
