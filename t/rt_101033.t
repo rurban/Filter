@@ -1,7 +1,6 @@
 #! perl
 use lib 't';
 use rt_101033;
-require "./filter-util.pl" ;
 
 print "1..1\n";
 my $s = <DATA>;
