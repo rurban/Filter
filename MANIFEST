@@ -40,6 +40,8 @@ t/decrypt.t
 t/exec.t
 t/order.t
 t/rt_54452-rebless.t
+t/rt_101033.pm
+t/rt_101033.t
 t/sh.t
 t/tee.t
 t/z_kwalitee.t
