@@ -602,7 +602,7 @@ filter_add(module, command, ...)
       	int pipe_in, pipe_out ;
 	STRLEN n_a ;
 	/* SV * sv = newSVpv("", 0) ; */
-	SV * sv = newSV(1) ;
+        SV * sv = SvREFCNT_inc(newSV(1));
 	Pid_t pid;
  
       if (fdebug)
