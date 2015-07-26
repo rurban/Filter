@@ -1,4 +1,4 @@
-
+#! perl
 use strict;
 use warnings;
 use Config;
@@ -26,7 +26,7 @@ BEGIN
     }
 }
 
-require "filter-util.pl" ;
+require "./filter-util.pl" ;
 
 use vars qw( $Inc $Perl $script ) ;
 

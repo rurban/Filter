@@ -1,4 +1,4 @@
-
+#! perl
 # check that the filters are destroyed in the correct order by
 # installing two different types of filter. If they don't get destroyed
 # in the correct order we should get a "filter_del can only delete in
@@ -17,9 +17,9 @@ require "./filter-util.pl" ;
 
 use vars qw( $Inc $Perl) ;
 
-my $file = "tee.test" ;
+my $file = "order.test" ;
 my $module = "FilterTry";
-my $tee1 = "tee1" ;
+my $tee1 = "order1" ;
 $Inc .= " -It";
 
 writeFile("t/${module}.pm", <<EOM, <<'EOM') ;

@@ -438,4 +438,6 @@
 1.55 2015-07-26 rurban
 ----
 
-  * Fix t/z_pod-coverage.t with old Test::More by Kent Frederik. RT #106090
+  * Fix t/z_pod-coverage.t with old Test::More by Kent Frederik. RT #106090.
+  * Fix t/tee.t + t/order.t race under parallel testing. RT #105396.
+    Thanks to Kent Frederik
