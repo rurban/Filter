@@ -292,6 +292,10 @@ See L<Example 4: Using filter_del> for details.
 Internal function which adds the filter, based on the L<filter_add>
 argument type.
 
+=item I<unimport()>
+
+May be used to disable a filter, but is rarely needed. See L<filter_del>.
+
 =back
 
 =head1 EXAMPLES

@@ -441,3 +441,7 @@
   * Fix t/z_pod-coverage.t with old Test::More by Kent Frederik. RT #106090.
   * Fix t/tee.t + t/order.t race under parallel testing. RT #105396.
     Thanks to Kent Frederik
+  * Fix Filter exec refcount, breaking earlier parse exits with __DATA__ RT #101668
+    Thanks to user42_kevin@yahoo.com.au
+  * Add missing filter_del in exec filter.
+  * Add pod for Filter::Util::Call::unimport to fix t/z_pod-coverage.t
