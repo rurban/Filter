@@ -434,3 +434,8 @@
 
   * Fix some compiler warnings for -Wall. Some patches by Dave Mitchell. RT #101587
     Note that perl5 itself is not yet -pedantic safe, Filter is.
+
+1.55 2015-07-26 rurban
+----
+
+  * Fix t/z_pod-coverage.t with old Test::More by Kent Frederik. RT #106090
