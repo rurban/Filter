@@ -36,7 +36,8 @@ foreach $file (@ARGV)
         next ;
     }
 
-    open (F, "<$file") || die "Cannot open $file: $!\n" ;
+    open (F, "<", $file) || die "Cannot open $file: $!\n" ;
+    binmode F;
 
     # skip the #! line
     $a = <F> ;
@@ -55,7 +56,8 @@ foreach $file (@ARGV)
         unless $f eq $Fingerprint ;
 
     print "decrypting $file to $file.pd\n" ;
-    open (O, ">${file}.pd") || die "Cannot open ${file}.pd: $!\n" ;
+    open (O, ">", ${file}.".pd") || die "Cannot open ${file}.pd: $!\n" ;
+    binmode O;
     print O $sharp_bang if $sharp_bang ;
     while ($size = read(F, $block, $BLOCKSIZE) )
     {

@@ -1,4 +1,4 @@
-
+#!perl
 require 5.002 ;
 
 use strict;
@@ -30,8 +30,9 @@ foreach $file (@ARGV)
 	next ;
     }
 
-    open (F, "<$file") or die "Cannot open $file: $!\n" ;
-    open (O, ">${file}.pe") or die "Cannot open ${file}.pe: $!\n" ;
+    open (F, "<", $file) or die "Cannot open $file: $!\n" ;
+    binmode F;
+    open (O, ">", ${file}.".pe") or die "Cannot open ${file}.pe: $!\n" ;
     binmode O;
 
     # Get the mode
@@ -44,7 +45,7 @@ foreach $file (@ARGV)
       { print O $line }
     else
       { seek F, 0, 0 }
-    
+
     print O "use Filter::decrypt ;\n" ;
     print O $Fingerprint ;
 

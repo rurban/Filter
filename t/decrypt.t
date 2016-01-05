@@ -53,12 +53,12 @@ EOM
 my $filename = "decrypt.tst" ;
 
 writeFile($filename, $script) ;
-`$Perl decrypt/encrypt $filename` ;
+`$Perl $Inc decrypt/encrypt $filename` ;
 writeFile('plain', 'print "This is plain text\n" ; 1 ;') ;
 
 my $a = `$Perl $Inc $filename 2>&1` ;
 
-print "1..6\n" ;
+print "1..7\n" ;
 
 print "# running perl with $Perl\n";
 print "# test 1: \$? $?\n" unless ($? >>8) == 0 ;
@@ -106,6 +106,23 @@ EOM
 $a = `$Perl $Inc $filename 2>&1` ;
 print "# test 6: Got '$a'\n" unless $a =~ /too many filters/ ;
 ok(6, $a =~ /too many filters/) ;
+
+# case 5 - ut8 encoding [cpan #110921]
+writeFile($filename, <<'EOF') ;
+use utf8;
+my @hiragana =  map {chr} ord("ぁ")..ord("ん");
+my $hiragana = join('' => @hiragana);
+my $str = $hiragana;
+$str =~ tr/ぁ-ん/ァ-ン/;
+print $str;
+EOF
+
+my $ori = `$Perl $Inc $filename` ;
+`$Perl $Inc decrypt/encrypt $filename` ;
+$a = `$Perl $Inc -C $filename 2>&1` ;
+
+print "# test 6: Got '$a'\n" if $a ne $ori;
+ok(7, $a eq $ori) ;
 
 unlink $filename ;
 unlink 'plain' ;

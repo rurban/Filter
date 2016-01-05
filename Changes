@@ -445,3 +445,9 @@
     Thanks to user42_kevin@yahoo.com.au
   * Add missing filter_del in exec filter.
   * Add pod for Filter::Util::Call::unimport to fix t/z_pod-coverage.t
+
+1.56 2016-01-05 rurban
+----
+
+  * add binmode to the decrypt/encr,decrypt sample scripts
+  * add utf8-endoded testcase to t/decrypt.t [cpan #110921]

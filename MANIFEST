@@ -1,3 +1,4 @@
+.gitignore
 Call/Call.pm
 Call/Call.xs
 Call/Makefile.PL
