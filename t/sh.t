@@ -5,6 +5,7 @@ use Config;
 
 BEGIN
 {
+    unshift @INC, 't';
     my $foundTR = 0 ;
     if ($^O eq 'MSWin32') {
         # Check if tr is installed
@@ -26,7 +27,7 @@ BEGIN
     }
 }
 
-require "./filter-util.pl" ;
+require "filter-util.pl" ;
 
 use vars qw( $Inc $Perl $script ) ;
 

@@ -1,5 +1,5 @@
 BEGIN {
-    if ($ENV{PERL_CORE}){
+    if ($ENV{PERL_CORE}) {
         require Config; import Config;
         %Config=%Config if 0; # cease -w
         if ($Config{'extensions'} !~ m{\bFilter/Util/Call\b}) {
@@ -7,6 +7,7 @@ BEGIN {
             exit 0;
         }
     }
+    unshift @INC, 't';
     require 'filter-util.pl';
 }
 

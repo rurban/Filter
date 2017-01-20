@@ -1,8 +1,8 @@
 #! perl
 use strict;
 use warnings;
-
-require "./filter-util.pl" ;
+BEGIN { unshift @INC, 't'; }
+require "filter-util.pl" ;
 
 use vars qw( $Inc $Perl $tee1) ;
 

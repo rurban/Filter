@@ -1,7 +1,7 @@
 
 use strict;
 use warnings;
-
+BEGIN { unshift @INC, 't'; }
 require "filter-util.pl" ;
 use Cwd ;
 my $here = getcwd ;

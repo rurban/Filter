@@ -3,10 +3,10 @@ use strict;
 use warnings;
 use Config;
 
-BEGIN 
-{
+BEGIN {
     my $cpp;
     my $sep;
+    unshift @INC, 't';
     if ($^O eq 'MSWin32') {
         $cpp = 'cpp.exe' ;
         $sep = ';';
@@ -15,34 +15,30 @@ BEGIN
         ($cpp) = $Config{cppstdin} =~ /^(\S+)/;
         $sep = ':';
     }
-     
     if (! $cpp) {
         print "1..0 # Skipping cpp not found on this system.\n" ;
         exit 0 ;
     }
-     
+
     # Check if cpp is installed
     if ( ! -x $cpp) {
         my $foundCPP = 0 ;
-        foreach my $dir (split($sep, $ENV{PATH}), '')
-        {
-            if (-x "$dir/$cpp")
-            {
+        foreach my $dir (split($sep, $ENV{PATH}), '') {
+            if (-x "$dir/$cpp") {
                 $foundCPP = 1;
                 last ;
             }
         }
-     
         if (! $foundCPP) {
             print "1..0 # Skipping cpp not found on this system.\n" ;
             exit 0 ;
         }
-    }                              
+      }
 }
 
 use vars qw( $Inc $Perl ) ;
 
-require "./filter-util.pl" ;
+require "filter-util.pl" ;
 
 my $script = <<'EOF' ;
 use Filter::cpp ;
