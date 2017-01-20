@@ -78,8 +78,8 @@ EOM
 my $a = `$Perl $Inc $filename 2>&1` ;
 
 print "1..2\n" ;
-ok(1, ($? >> 8) == 0) ;
-ok(2, $a eq $expected_output) ;
+ok(1, ($? >> 8) == 0) or diag($?);
+ok(2, $a eq $expected_output) or diag("$Perl $Inc $filename", $a);
 
 unlink $filename ;
 
