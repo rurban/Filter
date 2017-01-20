@@ -50,7 +50,7 @@ I'm a format top
 I'm not
 EOM
 
-my $filename = "decrypt.tst" ;
+my $filename = "decrypt$$.tst" ;
 
 writeFile($filename, $script) ;
 `$Perl $Inc decrypt/encrypt $filename` ;

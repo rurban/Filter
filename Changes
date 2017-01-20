@@ -6,6 +6,7 @@
   * stabilized some tests, add diag to sometimes failing sh tests
   * moved filter-util.pl to t/
   * fixed INSTALLDIRS back to site since 5.12 [gh #2]
+  * fixed exec/sh test races using the same temp. filenames
   * reversed this Changes file to latest first
   * added Travis CI
 

@@ -62,7 +62,7 @@ EOM
 PRINT "A (AGAIN) = $A\N" ;
 EOF
 
-my $filename = 'sh.test' ;
+my $filename = "sh$$.test" ;
 writeFile($filename, $script) ;
 
 my $expected_output = <<'EOM' ;

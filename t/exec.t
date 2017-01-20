@@ -61,7 +61,7 @@ EOM
 PRINT "A (AGAIN) = $A\N" ;
 EOF
 
-my $filename = 'sh.test' ;
+my $filename = "exec$$.test" ;
 writeFile($filename, $script) ;
 
 my $expected_output = <<'EOM' ;
@@ -77,8 +77,8 @@ EOM
 $a = `$Perl $Inc $filename 2>&1` ;
 
 print "1..3\n";
-ok(1, ($? >> 8) == 0) ;
-ok(2, $a eq $expected_output) ;
+ok(1, ($? >> 8) == 0) or diag("$Perl $Inc $filename 2>&1", $?);
+ok(2, $a eq $expected_output) or diag($a);
 
 unlink $filename;
 
@@ -87,7 +87,7 @@ unlink $filename;
 #
 # echo is fairly common on all shells and archs I think.
 $a = `echo __DATA__ | $Perl $Inc -MFilter::exec=cat - 2>&1`;
-ok(3, ($? >> 8) == 0) ;
+ok(3, ($? >> 8) == 0) or diag($?);
 
 # Note: To debug this case it is easier to put `echo __DATA__` into a data.sh
 # `make MPOLLUTE=-DFDEBUG`

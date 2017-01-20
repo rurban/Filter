@@ -23,9 +23,9 @@ use Cwd ;
 my $here = getcwd ;
 
 
-my $filename = "call.tst" ;
-my $filename2 = "call2.tst" ;
-my $filenamebin = "call.bin" ;
+my $filename = "call$$.tst" ;
+my $filename2 = "call2$$.tst" ;
+my $filenamebin = "call$$.bin" ;
 my $module   = "MyTest" ;
 my $module2  = "MyTest2" ;
 my $module3  = "MyTest3" ;
