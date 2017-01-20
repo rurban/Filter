@@ -5,6 +5,7 @@
   * add utf8-encoded testcase to t/decrypt.t [cpan #110921]. use -C
   * stabilized some tests, add diag to sometimes failing sh tests
   * moved filter-util.pl to t/
+  * fixed INSTALLDIRS back to site since 5.12 [gh #2]
   * reversed this Changes file to latest first
   * added Travis CI
 
