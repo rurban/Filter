@@ -6,6 +6,7 @@
   * stabilized some tests, add diag to sometimes failing sh tests
   * moved filter-util.pl to t/
   * reversed this Changes file to latest first
+  * added Travis CI
 
 1.55 2015-07-26 rurban
 ----

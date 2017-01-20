@@ -1,4 +1,5 @@
 .gitignore
+.travis.yml
 Call/Call.pm
 Call/Call.xs
 Call/Makefile.PL
