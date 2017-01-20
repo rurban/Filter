@@ -33,7 +33,6 @@ examples/method/Joe2Jim.pm
 examples/method/NewSubst.pm
 examples/method/Subst.pm
 examples/method/UUdecode.pm
-t/filter-util.pl
 lib/Filter/cpp.pm
 lib/Filter/exec.pm
 lib/Filter/sh.pm
@@ -43,6 +42,7 @@ t/call.t
 t/cpp.t
 t/decrypt.t
 t/exec.t
+t/filter-util.pl
 t/order.t
 t/rt_101033.pm
 t/rt_101033.t

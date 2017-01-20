@@ -117,9 +117,9 @@ $str =~ tr/ぁ-ん/ァ-ン/;
 print $str;
 EOF
 
-my $ori = `$Perl $Inc $filename` ;
+my $ori = `$Perl -C $Inc $filename` ;
 `$Perl $Inc decrypt/encrypt $filename` ;
-$a = `$Perl $Inc -C $filename 2>&1` ;
+$a = `$Perl -C $Inc $filename 2>&1` ;
 
 print "# test 6: Got '$a'\n" if $a ne $ori;
 ok(7, $a eq $ori) ;

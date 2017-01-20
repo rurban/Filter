@@ -11,7 +11,7 @@ BEGIN
 
 use strict;
 
-my @files = qw( filter-util.pl
+my @files = qw( t/filter-util.pl
              Call/Call.pm 
              Exec/Exec.pm 
              decrypt/decrypt.pm decrypt/decr decrypt/encrypt

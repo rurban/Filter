@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 
 use strict ;
 use warnings ;
@@ -12,7 +12,7 @@ die "Create a decompressor for a pl.gz\nUsage: filtdef file > filtfile\n"
 
 foreach $file (@ARGV) 
 {
-    open (F, "<$file") or die "Cannot open $file: $!\n" ;
+    open (F, "<", $file) or die "Cannot open $file: $!\n" ;
     my $x = deflateInit()
        or die "Cannot create a deflation stream\n" ;
 
