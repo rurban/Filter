@@ -19,7 +19,8 @@ use vars qw($VERSION @ISA @EXPORT) ;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
-$VERSION = "1.56" ;
+$VERSION = "1.56_01" ;
+$VERSION = eval $VERSION;
 
 sub filter_read_exact($)
 {

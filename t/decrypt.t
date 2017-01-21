@@ -64,16 +64,14 @@ print "# running perl with $Perl\n";
 print "# test 1: \$? $?\n" unless ($? >>8) == 0 ;
 
 ok(1, ($? >>8) == 0) ;
-print "# test 2: Got '$a'\n" unless $a eq $expected_output ;
-ok(2, $a eq $expected_output) ;
+ok(2, $a eq $expected_output) or diag("Got '$a'");
 
 # try to catch error cases
 
 # case 1 - Perl debugger
 $ENV{'PERLDB_OPTS'} = 'noTTY' ;
 $a = `$Perl $Inc -d $filename 2>&1` ;
-print "# test 3: Got '$a'\n" unless $a =~ /debugger disabled/ ;
-ok(3, $a =~ /debugger disabled/) ;
+ok(3, $a =~ /debugger disabled/)  or diag("Got '$a'");;
 
 # case 2 - Perl Compiler in use
 $a = `$Perl $Inc -MCarp -MO=Deparse $filename 2>&1` ;
@@ -93,9 +91,7 @@ mary had a little lamb
 EOM
 
 $a = `$Perl $Inc $filename 2>&1` ;
-
-print "# test 5: Got '$a'\n" unless $a =~ /bad encryption format/ ;
-ok(5, $a =~ /bad encryption format/) ;
+ok(5, $a =~ /bad encryption format/) or diag("Got '$a'");
 
 # case 4 - extra source filter on the same line
 writeFile($filename, <<EOM) ;
@@ -104,8 +100,7 @@ mary had a little lamb
 EOM
 
 $a = `$Perl $Inc $filename 2>&1` ;
-print "# test 6: Got '$a'\n" unless $a =~ /too many filters/ ;
-ok(6, $a =~ /too many filters/) ;
+ok(6, $a =~ /too many filters/)  or diag("Got '$a'");
 
 # case 5 - ut8 encoding [cpan #110921]
 writeFile($filename, <<'EOF') ;
@@ -117,12 +112,17 @@ $str =~ tr/ぁ-ん/ァ-ン/;
 print $str;
 EOF
 
-my $ori = `$Perl -C $Inc $filename` ;
-`$Perl $Inc decrypt/encrypt $filename` ;
-$a = `$Perl -C $Inc $filename 2>&1` ;
+if (   ($ENV{LC_ALL} and $ENV{LC_ALL} !~ /UTF-8/)
+    or ($ENV{LC_CTYPE} and $ENV{LC_CTYPE} !~ /UTF-8/) )
+{
+    print "ok 7 # skip no UTF8 locale\n";
+} else {
+    my $ori = `$Perl -C $Inc $filename` ;
+    `$Perl $Inc decrypt/encrypt $filename` ;
+    $a = `$Perl -C $Inc $filename 2>&1` ;
 
-print "# test 6: Got '$a'\n" if $a ne $ori;
-ok(7, $a eq $ori) ;
+    ok(7, $a eq $ori) or diag("Got '$a'");
+}
 
 unlink $filename ;
 unlink 'plain' ;
