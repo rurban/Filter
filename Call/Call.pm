@@ -15,11 +15,12 @@ require Exporter;
 use Carp ;
 use strict;
 use warnings;
-use vars qw($VERSION @ISA @EXPORT) ;
+use vars qw($VERSION $XS_VERSION @ISA @EXPORT) ;
 
 @ISA = qw(Exporter DynaLoader);
 @EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
 $VERSION = "1.56_01" ;
+$XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
 sub filter_read_exact($)
