@@ -1,3 +1,7 @@
+1.56_02 2017-01-22 rurban
+----
+  * Todo the t/decrypt.t test 7 utf8 failures.
+
 1.56_01 2017-01-21 rurban
 ----
   * Try to fix t/decrypt.t test 7 utf8 failures.
