@@ -1,11 +1,7 @@
-1.56_02 2017-01-22 rurban
+1.57 2017-01-22 rurban
 ----
-  * Todo the t/decrypt.t test 7 utf8 failures.
   * Todo the t/exec.t test 2 on cygwin.
-
-1.56_01 2017-01-21 rurban
-----
-  * Try to fix t/decrypt.t test 7 utf8 failures.
+  * Fixed/Todo the t/decrypt.t test 7 utf8 failures.
     Skip with non UTF-8 locale.
 
 1.56 2017-01-20 rurban
