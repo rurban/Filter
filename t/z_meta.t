@@ -25,4 +25,7 @@ if ( $@ ) {
   die "Failed to load required release-testing module $MODULE 0.12"
     if -d '.git' || $ENV{IS_MAINTAINER};
 }
+use File::Copy 'cp';
+cp('MYMETA.yml','META.yml') if -e 'MYMETA.yml' and !-e 'META.yml';
+
 meta_yaml_ok();
