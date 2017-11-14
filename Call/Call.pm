@@ -9,18 +9,17 @@
  
 package Filter::Util::Call ;
 
-require 5.005 ;
+require 5.006 ; # our
 require DynaLoader;
 require Exporter;
 use Carp ;
 use strict;
 use warnings;
-use vars qw($VERSION $XS_VERSION @ISA @EXPORT) ;
 
-@ISA = qw(Exporter DynaLoader);
-@EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
-$VERSION = "1.57" ;
-$XS_VERSION = $VERSION;
+our @ISA = qw(Exporter DynaLoader);
+our @EXPORT = qw( filter_add filter_del filter_read filter_read_exact) ;
+our $VERSION = "1.57" ;
+our $XS_VERSION = $VERSION;
 $VERSION = eval $VERSION;
 
 sub filter_read_exact($)
