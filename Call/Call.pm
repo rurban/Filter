@@ -12,7 +12,7 @@ package Filter::Util::Call ;
 require 5.005 ;
 require DynaLoader;
 require Exporter;
-use Carp ;
+
 use strict;
 use warnings;
 
@@ -28,8 +28,10 @@ sub filter_read_exact($)
     my ($left)   = $size ;
     my ($status) ;
 
-    croak ("filter_read_exact: size parameter must be > 0")
-	unless $size > 0 ;
+    unless ( $size > 0 ) {
+        require Carp;
+        Carp::croak("filter_read_exact: size parameter must be > 0");
+    }
 
     # try to read a block which is exactly $size bytes long
     while ($left and ($status = filter_read($left)) > 0) {
