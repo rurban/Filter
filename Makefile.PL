@@ -51,6 +51,10 @@ WriteMakefile
    DISTNAME     => 'Filter',
    NAME         => 'Filter::Util::Call',
    VERSION_FROM => 'Call/Call.pm',
+   TEST_REQUIRES => {
+         'Test::More'     => 0,
+         'Devel::NYTProf' => 0,
+    },
    'linkext'    => {LINKTYPE => ''},
    'dist'       => {COMPRESS=>'gzip', SUFFIX=>'gz',
 		   DIST_DEFAULT => 'tardist'},
@@ -88,6 +92,7 @@ WriteMakefile
       }}) : ()),
    clean => { FILES =>
 		"t/FilterTry.pm *~ "
+    ."nytprof.out "
 		."META.yml MYMETA.yml MYMETA.json "
 		."decrypt/MYMETA.yml decrypt/MYMETA.json decrypt/Makefile.old decrypt/pm_to_blib decrypt/*.c decrypt/*.o "
 		."tee/MYMETA.yml tee/MYMETA.json tee/Makefile.old tee/pm_to_blib tee/*.c tee/*.o "
