@@ -66,7 +66,9 @@ filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
     while (1) {
 
 	/* anything left from last time */
-	if ((n = SvCUR(my_sv))) {
+
+        if ((n = SvCUR(my_sv))) {
+            assert(SvCUR(my_sv) < PERL_INT_MAX) ;
 
 	    out_ptr = SvPVX(my_sv) + BUF_OFFSET(my_sv) ;
 
@@ -146,7 +148,7 @@ filter_call(pTHX_ int idx, SV *buf_sv, int maxlen)
 	        croak("Filter::Util::Call - %s::filter returned %d values, 1 was expected \n", 
 			PERL_MODULE(my_sv), count ) ;
     
-	    n = POPi ;
+	    n = (IV)POPi ;
 
 	    if (fdebug)
 	        warn("status = %d, length op buf = %" IVdf " [%s]\n",
@@ -215,7 +217,7 @@ void
 real_import(object, perlmodule, coderef)
     SV *	object
     char *	perlmodule 
-    int		coderef
+    IV		coderef
     PPCODE:
     {
         SV * sv = newSV(1) ;
