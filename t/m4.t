@@ -48,10 +48,11 @@ require "filter-util.pl";
 my $script = <<'EOF';
 use Filter::m4;
 
-define(`foo', `$1 =~ s/bar/baz/r')
+define(`bar2baz', `$1 =~ s/bar/baz/')
 
 $a = "foobar";
-print "a = " . foo(`$a') . "\n";
+bar2baz(`$a');
+print "a = $a\n";
 EOF
 
 my $m4_script = 'm4.script';
@@ -67,10 +68,11 @@ EOM
 my $prefix_script = <<'EOF';
 use Filter::m4 'prefix';
 
-m4_define(`foo', `$1 =~ s/bar/baz/r')
+m4_define(`bar2baz', `$1 =~ s/bar/baz/')
 
 $a = "foobar";
-print "a = " . foo(`$a') . "\n";
+bar2baz(`$a');
+print "a = $a\n";
 EOF
 
 my $m4_prefix_script = 'm4_prefix.script';
