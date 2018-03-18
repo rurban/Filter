@@ -110,7 +110,7 @@ The output of the above example:
 =head1 NOTES
 
 By default, M4 uses ` and ' as quotes; however, this is configurable using
-m4's C<changequote> builtin.
+M4's C<changequote> builtin.
 
 M4 uses C<$1>, C<$2>, etc., to indicate arguments in macros.  To avoid
 clashes with Perl regex syntax it is recommended to use Perl's alternative
