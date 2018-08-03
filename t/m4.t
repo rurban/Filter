@@ -4,10 +4,13 @@ use strict;
 use warnings;
 use Config;
 
+use FindBin;
+use lib "$FindBin::Bin"; # required to load filter-util.pl
+
 BEGIN {
     my $m4;
     my $sep;
-    unshift @INC, 't';
+
     if ($^O eq 'MSWin32') {
         $m4 = 'm4.exe';
         $sep = ';';
@@ -36,7 +39,6 @@ BEGIN {
         }
     }
 }
-
 
 use vars qw($Inc $Perl);
 
