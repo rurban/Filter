@@ -6,6 +6,8 @@ BEGIN {
             print "1..0 # Skip: Filter::Util::Call was not built\n";
             exit 0;
         }
+        require Cwd;
+        unshift @INC, Cwd::cwd();
     }
 }
 
