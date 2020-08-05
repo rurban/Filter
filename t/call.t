@@ -130,10 +130,10 @@ use $module ;
 EOM
 
 use Cwd ;
-$here = getcwd ;
+my $here = getcwd ;
 print "I am $here\n" ;
 print "some letters ABC\n" ;
-$y = "ABCDEF" ;
+my $y = "ABCDEF" ;
 print <<EOF ;
 Alphabetti Spagetti ($y)
 EOF
@@ -141,7 +141,7 @@ EOF
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(5, ($? >>8) == 0) ;
+ok(5, ($? >>8) == 0) or warn $a;
 ok(6, $a eq <<EOM) ;
 I am $here
 some letters DEF
@@ -179,10 +179,10 @@ use $module ;
 EOM
 
 use Cwd ;
-$here = getcwd ;
+my $here = getcwd ;
 print "I am $here\n" ;
 print "some letters ABC\n" ;
-$y = "ABCDEF" ;
+my $y = "ABCDEF" ;
 print <<EOF ;
 Alphabetti Spagetti ($y)
 EOF
@@ -190,7 +190,7 @@ EOF
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(7, ($? >>8) == 0) ;
+ok(7, ($? >>8) == 0) or warn $a;
 ok(8, $a eq <<EOM) ;
 I am $here
 some letters DEF
@@ -286,7 +286,7 @@ use $module4 ;
 EOM
 
 print "some letters ABCXYZ\n" ;
-$y = "ABCDEFXYZ" ;
+my $y = "ABCDEFXYZ" ;
 print <<EOF ;
 Fred likes Alphabetti Spagetti ($y)
 EOF
@@ -305,7 +305,7 @@ EOF
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(9, ($? >>8) == 0) ;
+ok(9, ($? >>8) == 0) or warn $a;
 ok(10, $a eq <<EOM) ;
 I'm feeling used!
 Fred Joe ABC DEF PQR XYZ
@@ -359,7 +359,7 @@ use $module2 qw( ABC NMO) ;
 EOM
 
 print "some letters ABCXYZ KLM NMO\n" ;
-$y = "ABCDEFXYZKLMNMO" ;
+my $y = "ABCDEFXYZKLMNMO" ;
 print <<EOF ;
 Alphabetti Spagetti ($y)
 EOF
@@ -367,7 +367,7 @@ EOF
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(11, ($? >>8) == 0) ;
+ok(11, ($? >>8) == 0) or warn $a;
 ok(12, $a eq <<EOM) ;
 some letters PQRPQR PQR PQR
 Alphabetti Spagetti (PQRDEFPQRPQRPQR)
@@ -418,7 +418,7 @@ use $module2 qw( ABC NMO) ;
 EOM
 
 print "some letters ABCXYZ KLM NMO\n" ;
-$y = "ABCDEFXYZKLMNMO" ;
+my $y = "ABCDEFXYZKLMNMO" ;
 print <<EOF ;
 Alphabetti Spagetti ($y)
 EOF
@@ -426,7 +426,7 @@ EOF
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(13, ($? >>8) == 0) ;
+ok(13, ($? >>8) == 0) or warn $a;
 ok(14, $a eq <<EOM) ;
 some letters PQRPQR PQR PQR
 Alphabetti Spagetti (PQRDEFPQRPQRPQR)
@@ -486,7 +486,7 @@ F
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(15, ($? >>8) == 0) ;
+ok(15, ($? >>8) == 0) or warn $a;
 ok(16, $a eq <<EOM) ;
 don't cut me in half
 appended
@@ -524,7 +524,7 @@ EOM
 
 my $string = <<'EOM' ;
 print "hello mum\n" ;
-$x = 'me ' x 3 ;
+my $x = 'me ' x 3 ;
 print "Who wants it?\n$x\n" ;
 EOM
 
@@ -534,7 +534,7 @@ use $block ;
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(17, ($? >>8) == 0) ;
+ok(17, ($? >>8) == 0) or warn $a;
 ok(18, $a eq <<EOM) ;
 hello mum
 Who wants it?
@@ -582,7 +582,7 @@ print "We are in DIR\n" ;
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(19, ($? >>8) == 0) ;
+ok(19, ($? >>8) == 0) or warn $a;
 ok(20, $a eq <<EOM) ;
 We are in $here
 EOM
@@ -633,7 +633,7 @@ HERE today gone tomorrow\n" ;
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(21, ($? >>8) == 0) ;
+ok(21, ($? >>8) == 0) or warn $a;
 ok(22, $a eq <<EOM) ;
 
 THERE I am
@@ -683,7 +683,7 @@ HERE today gone tomorrow\n" ;
 EOM
 
 $a = `$Perl "-I." $Inc $filenamebin  $redir` ;
-ok(23, ($? >>8) == 0) ;
+ok(23, ($? >>8) == 0) or warn $a;
 ok(24, $a eq <<EOM) ;
 
 HERE I am
@@ -728,7 +728,7 @@ writeFile($filename, <<EOM, <<'EOM') ;
 use $block ;
 EOM
 print "HERE HERE\n";
-@a = <DATA>;
+my @a = <DATA>;
 print @a;
 __DATA__
 HERE I am
@@ -737,7 +737,7 @@ HERE today gone tomorrow
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(25, ($? >>8) == 0) ;
+ok(25, ($? >>8) == 0) or warn $a;
 ok(26, $a eq <<EOM) ;
 THERE THERE
 HERE I am
@@ -784,7 +784,7 @@ writeFile($filename, <<EOM, <<'EOM') ;
 use $block ;
 EOM
 print "HERE HERE\n";
-@a = <DATA>;
+my @a = <DATA>;
 print @a;
 __END__
 HERE I am
@@ -793,7 +793,7 @@ HERE today gone tomorrow
 EOM
 
 $a = `$Perl "-I." $Inc $filename  $redir` ;
-ok(27, ($? >>8) == 0) ;
+ok(27, ($? >>8) == 0) or warn $a;
 ok(28, $a eq <<EOM) ;
 THERE THERE
 HERE I am
@@ -826,12 +826,12 @@ EOM
 
 my $str = $^O eq 'MacOS' ? "'ok'" : "q{ok}";
 my $a = `$Perl "-I." $Inc -e "no ${module6}; print $str"`;
-ok(29, ($? >>8) == 0);
+ok(29, ($? >>8) == 0) or warn $a;
 chomp( $a ) if $^O eq 'VMS';
 ok(30, $a eq 'ok');
 
 $a = `$Perl "-I." $Inc $filename2`;
-ok(31, ($? >>8) == 0);
+ok(31, ($? >>8) == 0) or warn $a;
 chomp( $a ) if $^O eq 'VMS';
 ok(32, $a eq 'ok');
 
@@ -875,7 +875,7 @@ HERE today gone tomorrow\n" ;
 EOM
 
 $a = `$Perl "-I." $Inc $filenamebin  $redir` ;
-ok(33, ($? >>8) != 0) ;
+ok(33, ($? >>8) != 0) or warn $a;
 ok(34, $a =~ /^filter_read_exact: size parameter must be > 0 at block.pm/) ;
 
 
