@@ -1,8 +1,9 @@
 package Filter::m4;
 
-use Filter::Util::Exec;
 use strict;
 use warnings;
+use Filter::Util::Exec;
+use Config;
 
 our $VERSION = '1.61';
 
@@ -13,13 +14,8 @@ if ($^O eq 'MSWin32') {
     $sep = ';';
 }
 else {
-    ($m4) = 'm4';
+    $m4 = 'm4';
     $sep = ':';
-}
-
-if (!$m4) {
-    require Carp;
-    Carp::croak("Cannot find m4\n");
 }
 
 # Check whether m4 is installed.
@@ -59,7 +55,9 @@ sub import
                 "m4.exe $m4arg 2>nul");
     }
     else {
-        Filter::Util::Exec::filter_add ($self, 'sh', '-c',
+        my $sh = $Config{'sh'};
+        $sh = "sh" unless $sh;
+        Filter::Util::Exec::filter_add ($self, $sh, '-c',
                 "m4 $m4arg 2>/dev/null");
     }
 }
