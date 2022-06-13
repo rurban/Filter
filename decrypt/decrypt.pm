@@ -1,5 +1,6 @@
 package Filter::decrypt ;
 
+use strict;
 require 5.006 ;
 require XSLoader;
 our $VERSION = "1.60" ;
