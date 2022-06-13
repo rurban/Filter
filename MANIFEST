@@ -1,4 +1,5 @@
 .appveyor.yml
+.github/workflows/testsuite.yml
 .gitignore
 .travis.yml
 .whitesource
