@@ -22,7 +22,10 @@ typedef struct {
     int x_fdebug ;
 #ifdef WIN32
     int x_write_started;
-    int x_pipe_pid;
+    HANDLE x_pipe_pid;
+# define PID_T HANDLE
+#else
+# define PID_T int
 #endif
 } my_cxt_t;
  
@@ -122,7 +125,7 @@ pipe_write(void *args)
                    warn ("*pipe_write(%d) closing pipe_out errno = %d %s\n", 
 			idx, errno, Strerror(errno)) ;
                 close(pipe_out) ;
-		CloseHandle((HANDLE)pipe_pid);
+		CloseHandle(pipe_pid);
 		write_started = 0;
 		return;
 	    }
@@ -132,7 +135,7 @@ pipe_write(void *args)
                warn ("*pipe_write(%d) closing pipe_out errno = %d %s\n", 
 		idx, errno, Strerror(errno)) ;
 	    close(pipe_out);
-	    CloseHandle((HANDLE)pipe_pid);
+	    CloseHandle(pipe_pid);
 	    write_started = 0;
 	    return;
 	}
@@ -210,7 +213,7 @@ pipe_read(SV *sv, int idx, int maxlen)
     int    pipe_in  = PIPE_IN(sv) ;
     int    pipe_out = PIPE_OUT(sv) ;
 #if (PERL_VERSION < 17 || (PERL_VERSION == 17 && PERL_SUBVERSION < 6)) && defined(HAVE_WAITPID)
-    int    pipe_pid = PIPE_PID(sv) ;
+    PID_T pipe_pid = (PID_T)PIPE_PID(sv) ;
 #endif
 
     int r ;
@@ -387,8 +390,8 @@ spawnCommand(PerlIO *fil, char *command, char *parameters[], int *p0, int *p1)
     close(c[READER]);
 
     /* spawn child process (which inherits the redirected std handles) */
-    pipe_pid = spawnvp(P_NOWAIT, command, parameters);
-    if (pipe_pid == -1) {
+    pipe_pid = (PID_T)spawnvp(P_NOWAIT, command, parameters);
+    if (pipe_pid == (PID_T)-1) {
 	PerlIO_close( fil );
 	croak("Can't spawn %s", command);
     }
