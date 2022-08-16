@@ -1,3 +1,8 @@
+1.64 2022-08-16 rurban
+----
+  * Exec: Silence all Windows -Wint-conversion and -Wint-to-pointer-cast
+    warnings
+
 1.63 2022-08-11 rurban
 ----
   * Exec: Really fix USE_ITHREADS (GH #17) with USE_THREADS

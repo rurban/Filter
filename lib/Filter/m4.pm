@@ -4,7 +4,7 @@ use Filter::Util::Exec;
 use strict;
 use warnings;
 
-our $VERSION = '1.63';
+our $VERSION = '1.64';
 
 my $m4;
 my $sep;
