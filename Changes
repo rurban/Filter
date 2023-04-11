@@ -285,7 +285,7 @@
 
   * Call & Exec now use the CXT* macros
 
-  * moved all backward compatability code into ppport.h
+  * moved all backward compatibility code into ppport.h
 
 1.25
 ----
