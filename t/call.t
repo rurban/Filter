@@ -23,8 +23,6 @@ use vars qw($Inc $Perl);
 
 print "1..34\n";
 
-$Perl = "$Perl -w";
-
 use Cwd ;
 my $here = getcwd ;
 
