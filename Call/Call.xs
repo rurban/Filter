@@ -223,7 +223,12 @@ real_import(object, perlmodule, coderef)
         SV * sv = newSV(1) ;
 
         (void)SvPOK_only(sv) ;
-        filter_add(filter_call, sv) ;
+        SV * res = filter_add(filter_call, sv) ;
+
+        if (!res) {
+            SvREFCNT_dec(sv);
+            XSRETURN_EMPTY;
+        }
 
 	PERL_MODULE(sv) = savepv(perlmodule) ;
 	PERL_OBJECT(sv) = (GV*) newSVsv(object) ;
